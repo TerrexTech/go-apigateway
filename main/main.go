@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/TerrexTech/go-apigateway/auth"
 	"github.com/TerrexTech/go-apigateway/gql/schema"
@@ -16,8 +17,8 @@ import (
 )
 
 var Schema graphql.Schema
-var kafkaIO *kafka.IO
-var tokenStore *auth.Redis
+var rootObject map[string]interface{}
+var kafkaAdapter *kafka.Adapter
 
 func init() {
 	// Load environment-file.
@@ -30,7 +31,7 @@ func init() {
 		log.Println(err)
 	}
 
-	tokenStore, err = auth.NewRedis(&redis.Options{
+	tokenStore, err := auth.NewRedis(&redis.Options{
 		Addr: "localhost:6379",
 		DB:   0,
 	})
@@ -39,14 +40,19 @@ func init() {
 		log.Println(err)
 		return
 	}
-	kafkaIO, err = initKafkaIO()
-	if err != nil {
-		err = errors.Wrap(err, "Failed Initializing KafkaIO")
-		log.Fatalln(err)
+
+	brokers := os.Getenv("KAFKA_BROKERS")
+	kafkaAdapter := &kafka.Adapter{
+		Brokers: *commonutil.ParseHosts(brokers),
+	}
+	rootObject = map[string]interface{}{
+		"kafkaAdapter": kafkaAdapter,
+		"tokenStore":   tokenStore,
 	}
 
 	s, err := graphql.NewSchema(graphql.SchemaConfig{
-		Query: schema.RootQuery,
+		Query:    schema.RootQuery,
+		Mutation: schema.RootMutation,
 	})
 	if err != nil {
 		log.Fatalf("Error creating GraphQL Schema: %v", err)
@@ -56,8 +62,8 @@ func init() {
 
 func main() {
 	missingVar, err := commonutil.ValidateEnv(
+		"EVENT_PRODUCER_TOPIC",
 		"KAFKA_BROKERS",
-		"KAFKA_CONSUMER_GROUP_LOGIN",
 		"KAFKA_CONSUMER_TOPIC_LOGIN",
 		"KAFKA_PRODUCER_TOPIC_LOGIN",
 	)

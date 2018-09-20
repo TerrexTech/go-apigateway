@@ -18,10 +18,6 @@ func graphqlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rootObject := map[string]interface{}{
-		"tokenStore": tokenStore,
-		"kafkaIO":    kafkaIO,
-	}
 	result := graphql.Do(graphql.Params{
 		Schema:        Schema,
 		RequestString: string(reqBytes),
