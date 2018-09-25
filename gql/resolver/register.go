@@ -1,52 +1,58 @@
 package resolver
 
 import (
-	"encoding/json"
-	"os"
 	"time"
 
-	"github.com/TerrexTech/go-eventstore-models/model"
-	"github.com/gocql/gocql"
+	"github.com/TerrexTech/go-apigateway/auth"
+	gmodel "github.com/TerrexTech/go-apigateway/model"
+	"github.com/TerrexTech/uuuid"
 
-	"github.com/TerrexTech/go-apigateway/kafka"
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 )
 
+// RegisterResolver is the resolver for Register GraphQL query.
 var RegisterResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	prodTopic := os.Getenv("EVENT_PRODUCER_TOPIC")
+	// prodTopic := os.Getenv("EVENT_PRODUCER_TOPIC")
 	// consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_REGISTER")
 
-	credentialsJSON, err := json.Marshal(params.Args)
-	if err != nil {
-		err = errors.Wrap(err, "RegisterResolver: Error marshalling credentials into JSON")
-		return nil, err
-	}
+	rootValue := params.Info.RootValue.(map[string]interface{})
+	db := rootValue["db"].(auth.DBI)
 
-	uuid, err := gocql.RandomUUID()
+	uid, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(err, "RegisterResolver: Error generating UUID for event")
 		return nil, err
 	}
-	event := &model.Event{
-		Action:      "insert",
-		AggregateID: 1,
-		Data:        string(credentialsJSON),
-		Timestamp:   time.Now(),
-		UserID:      1,
-		UUID:        uuid,
-		Version:     0,
-		YearBucket:  2018,
+	// Create user from GraphQL Ags
+	user := &gmodel.User{
+		FirstName: params.Args["firstName"].(string),
+		LastName:  params.Args["lastName"].(string),
+		Email:     params.Args["email"].(string),
+		Username:  params.Args["username"].(string),
+		Password:  params.Args["password"].(string),
+		Role:      params.Args["role"].(string),
+		UUID:      uid,
 	}
+	user, err = db.Register(user)
 
-	rootValue := params.Info.RootValue.(map[string]interface{})
-	ka := rootValue["kafkaAdapter"].(*kafka.Adapter)
-	pio, err := ka.EnsureProducerEventIO(prodTopic, prodTopic, false)
+	// AccessToken claims
+	claims := &gmodel.Claims{
+		Role:      user.Role,
+		Sub:       user.UUID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+	}
+	at, err := gmodel.NewAccessToken(15*time.Minute, claims)
+
 	if err != nil {
-		err = errors.Wrap(err, "Error creating ProducerIO for RegisterResolver")
 		return nil, err
 	}
 
-	pio.ProducerInput() <- event
-	return nil, nil
+	rt, err := gmodel.NewRefreshToken(7*24*time.Hour, uid)
+	ar := &gmodel.AuthResponse{
+		AccessToken:  at,
+		RefreshToken: rt,
+	}
+	return ar, nil
 }

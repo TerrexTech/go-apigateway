@@ -4,21 +4,24 @@ import (
 	"time"
 
 	"github.com/TerrexTech/go-apigateway/model"
+	"github.com/TerrexTech/uuuid"
 	"github.com/go-redis/redis"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
+// TokenStoreI is a key-value token-storage.
 type TokenStoreI interface {
 	Set(token *model.RefreshToken) error
-	Get(uid uuid.UUID) (string, error)
+	Get(uid uuuid.UUID) (string, error)
 }
 
+// Redis represents a Redis-Client instance.
+// This implements the TokenStoreI.
 type Redis struct {
 	client *redis.Client
 }
 
-//RedisClient connects to Redis server to store tokens
+// NewRedis creates a new Redis-Client using provided options.
 func NewRedis(opts *redis.Options) (*Redis, error) {
 	client := redis.NewClient(opts)
 	if client == nil {
@@ -29,7 +32,7 @@ func NewRedis(opts *redis.Options) (*Redis, error) {
 	}, nil
 }
 
-//SetToken sets the token for redis client
+// Set sets the provided token with "sub" as key.
 func (r *Redis) Set(token *model.RefreshToken) error {
 	exp := time.Until(token.Exp)
 	status := r.client.Set(token.Sub.String(), token.Token, exp)
@@ -41,8 +44,8 @@ func (r *Redis) Set(token *model.RefreshToken) error {
 	return nil
 }
 
-//GetToken retrieves token from redis db
-func (r *Redis) Get(uid uuid.UUID) (string, error) {
+// Get retrieves token from Redis using provided uuid as key.
+func (r *Redis) Get(uid uuuid.UUID) (string, error) {
 	val, err := r.client.Get(uid.String()).Result()
 	if err != nil {
 		err = errors.Wrap(err, "Redis Error in Get")

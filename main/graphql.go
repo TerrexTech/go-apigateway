@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// graphqlHandler handles GraphQL requests.
 func graphqlHandler(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {

@@ -9,13 +9,13 @@ import (
 	"github.com/TerrexTech/go-eventstore-models/model"
 	"github.com/TerrexTech/go-kafkautils/consumer"
 	"github.com/TerrexTech/go-kafkautils/producer"
+	"github.com/TerrexTech/uuuid"
 	cluster "github.com/bsm/sarama-cluster"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
 var groupIDSuffix = func() string {
-	id, err := uuid.NewV4()
+	id, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(err, "KafkaAdapter: Error generating GroupIDSuffix")
 		log.Fatalln(err)

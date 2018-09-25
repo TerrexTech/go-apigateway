@@ -4,20 +4,23 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/TerrexTech/uuuid"
 	"github.com/pkg/errors"
 )
 
+// RefreshToken represents a JWT-auth RefreshToken.
 type RefreshToken struct {
 	Exp time.Time `json:"exp"`
 	// Iat is the time the token was generated. This can be used in case the required
 	// expiration time is different than Exp.
 	Iat   time.Time `json:"iat"`
 	Token string    `json:"token"`
-	Sub   uuid.UUID `json:"sub"`
+	// Sub is the UserUUID for which the RefreshToken was generated.
+	Sub uuuid.UUID `json:"sub"`
 }
 
-func NewRefreshToken(exp time.Duration, uid uuid.UUID) (*RefreshToken, error) {
+// NewRefreshToken generates a new RefreshToken.
+func NewRefreshToken(exp time.Duration, uid uuuid.UUID) (*RefreshToken, error) {
 	if uid.String() == "" {
 		return nil, errors.New("Error generating new AccessToken: User uuid absent")
 	}
@@ -47,11 +50,13 @@ func NewRefreshToken(exp time.Duration, uid uuid.UUID) (*RefreshToken, error) {
 	}, nil
 }
 
+// Valid returns true if the Refresh token is valid, and hasn't expired.
 func (rt *RefreshToken) Valid() bool {
 	valid := time.Now().Before(rt.Exp)
 	return valid
 }
 
+// String returns the string representation of RefreshToken.
 func (rt *RefreshToken) String() string {
 	return rt.Token
 }

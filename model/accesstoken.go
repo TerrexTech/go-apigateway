@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/TerrexTech/go-apigateway/auth/key"
+	"github.com/TerrexTech/uuuid"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -19,7 +19,7 @@ type AccessToken struct {
 	// expiration time is different than Exp.
 	Iat time.Time `json:"iat"`
 	// Jti is the unique-identifier for this token.
-	Jti uuid.UUID `json:"jti"`
+	Jti uuuid.UUID `json:"jti"`
 	// RawToken is the actual/un-encoded JWT RawToken.
 	RawToken *jwt.Token `json:"raw_token"`
 	// Token is the JWT token ecoded with required claims.
@@ -27,15 +27,17 @@ type AccessToken struct {
 	Token string `json:"token"`
 }
 
+// Claims represent the encoded AccessToken claims.
 type Claims struct {
 	// Role represent's user's authorization-level.
 	Role string `json:"role"`
 	// Sub is the user-uuid for whom the token is generated.
-	Sub       uuid.UUID `json:"sub"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	Sub       uuuid.UUID `json:"sub"`
+	FirstName string     `json:"first_name"`
+	LastName  string     `json:"last_name"`
 }
 
+// NewAccessToken creates new AccessToken with provided exp-duration and claims.
 func NewAccessToken(exp time.Duration, claims *Claims) (*AccessToken, error) {
 	if claims.Sub.String() == "" {
 		return nil, errors.New("Error generating new AccessToken: Sub absent")
@@ -44,7 +46,7 @@ func NewAccessToken(exp time.Duration, claims *Claims) (*AccessToken, error) {
 		return nil, errors.New("Error generating new AccessToken: Role absent")
 	}
 
-	uuid, err := uuid.NewV4()
+	uuid, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(
 			err,
@@ -73,6 +75,7 @@ func NewAccessToken(exp time.Duration, claims *Claims) (*AccessToken, error) {
 	return at, nil
 }
 
+// Encode returns the encoded representation of the AccessToken.
 func (at *AccessToken) Encode() (string, error) {
 	var err error
 	if at.Exp.Before(time.Now()) {
@@ -107,6 +110,7 @@ func (at *AccessToken) Encode() (string, error) {
 	return at.Token, err
 }
 
+// Valid returns true if the AccessToken is valid.
 func (at *AccessToken) Valid() bool {
 	valid := time.Now().Before(at.Exp)
 	if !valid {
@@ -115,6 +119,7 @@ func (at *AccessToken) Valid() bool {
 	return valid
 }
 
+// String returns the string representation of the AccessToken.
 func (at *AccessToken) String() string {
 	return at.Token
 }

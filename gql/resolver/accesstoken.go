@@ -3,11 +3,12 @@ package resolver
 import (
 	"github.com/TerrexTech/go-apigateway/auth"
 	"github.com/TerrexTech/go-apigateway/model"
-	"github.com/gofrs/uuid"
+	"github.com/TerrexTech/uuuid"
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 )
 
+// AccessTokenResolver is the resolver for AccessToken type.
 var AccessTokenResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	rootValue := params.Info.RootValue.(map[string]interface{})
 	redis := rootValue["redis"].(auth.TokenStoreI)
@@ -15,7 +16,7 @@ var AccessTokenResolver = func(params graphql.ResolveParams) (interface{}, error
 	rtStr := params.Args["refreshToken"].(string)
 	uid := params.Args["sub"].(string)
 
-	parsedUID, err := uuid.FromString(uid)
+	parsedUID, err := uuuid.FromString(uid)
 	if err != nil {
 		return nil, errors.New("Error parsing RefreshToken: Cannot parse Sub")
 	}

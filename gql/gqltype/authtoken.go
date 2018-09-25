@@ -2,6 +2,7 @@ package gqltype
 
 import "github.com/graphql-go/graphql"
 
+// AuthResponse represents the GraphQL-type for AuthResponse model.
 var AuthResponse = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AuthResponse",

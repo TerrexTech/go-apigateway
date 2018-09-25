@@ -10,15 +10,17 @@ import (
 	"github.com/TerrexTech/go-apigateway/kafka"
 	"github.com/TerrexTech/go-apigateway/model"
 	esmodel "github.com/TerrexTech/go-eventstore-models/model"
-	"github.com/gofrs/uuid"
+	"github.com/TerrexTech/uuuid"
 	"github.com/pkg/errors"
 )
 
+// authResponse is the GraphQL response on successful authentication.
 type authResponse struct {
 	authResponse *model.AuthResponse
 	authErr      error
 }
 
+// AccessTokenResolver is the resolver for AccessToken type.
 var authHandler = func(
 	ts auth.TokenStoreI,
 	credentials map[string]interface{},
@@ -33,7 +35,7 @@ var authHandler = func(
 	}
 
 	// CorrelationID
-	cid, err := uuid.NewV4()
+	cid, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(err, "LoginResolver: Error generating UUID for cid")
 		return nil, err
@@ -41,14 +43,14 @@ var authHandler = func(
 	// Publish Auth-Request on Kafka Topic
 	go func() {
 		pio.ProducerInput() <- &esmodel.KafkaResponse{
-			CorrelationID: cid.String(),
-			Input:         string(credentialsJSON),
+			CorrelationID: cid,
+			Input:         credentialsJSON,
 			Topic:         pio.ID(),
 		}
 	}()
 
 	// Timeout Context
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	authResChan := make(chan *authResponse)
 
@@ -74,7 +76,7 @@ authResponseLoop:
 func handleAuthResponse(
 	msg *sarama.ConsumerMessage,
 	ts auth.TokenStoreI,
-	cid uuid.UUID,
+	cid uuuid.UUID,
 	outChan chan<- *authResponse,
 ) {
 	user, err := parseKafkaResponse(msg, cid)
@@ -116,7 +118,7 @@ func handleAuthResponse(
 	}
 }
 
-func parseKafkaResponse(msg *sarama.ConsumerMessage, cid uuid.UUID) (*model.User, error) {
+func parseKafkaResponse(msg *sarama.ConsumerMessage, cid uuuid.UUID) (*model.User, error) {
 	kr := &esmodel.KafkaResponse{}
 	err := json.Unmarshal(msg.Value, kr)
 	if err != nil {
@@ -124,7 +126,7 @@ func parseKafkaResponse(msg *sarama.ConsumerMessage, cid uuid.UUID) (*model.User
 		return nil, err
 	}
 
-	if cid.String() != kr.CorrelationID {
+	if cid.String() != kr.CorrelationID.String() {
 		return nil, errors.New("LoginResponseHandler: CorrelationID mistmatch")
 	}
 

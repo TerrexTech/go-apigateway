@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// LoginResolver is the resolver for Login GraphQL query.
 var LoginResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	prodTopic := os.Getenv("KAFKA_PRODUCER_TOPIC_LOGIN")
 	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_LOGIN")
@@ -26,6 +27,5 @@ var LoginResolver = func(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 	ts := rootValue["tokenStore"].(auth.TokenStoreI)
-
 	return authHandler(ts, params.Args, pio, cio)
 }

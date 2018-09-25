@@ -6,11 +6,12 @@ import (
 
 	"github.com/TerrexTech/go-apigateway/auth/key"
 	"github.com/TerrexTech/go-apigateway/model"
+	"github.com/TerrexTech/uuuid"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
+// RefreshAccessToken generates new AccessToken from provided RefreshToken.
 func RefreshAccessToken(
 	ts TokenStoreI,
 	rt *model.RefreshToken,
@@ -44,6 +45,7 @@ func RefreshAccessToken(
 	return model.NewAccessToken(15*time.Minute, claims)
 }
 
+// ParseAccessToken decodes the provided AccessToken into AccessToken model.
 func ParseAccessToken(token string) (*model.AccessToken, error) {
 	claims := jwt.MapClaims{}
 
@@ -73,13 +75,13 @@ func ParseAccessToken(token string) (*model.AccessToken, error) {
 		return nil, err
 	}
 
-	jti, err := uuid.FromString(claims["jti"].(string))
+	jti, err := uuuid.FromString(claims["jti"].(string))
 	if err != nil {
 		err = errors.Wrap(err, "Error parsing UUID from AccessToken")
 		return nil, err
 	}
 
-	uid, err := uuid.FromString(claims["sub"].(string))
+	uid, err := uuuid.FromString(claims["sub"].(string))
 	if err != nil {
 		err = errors.Wrap(err, "Error parsing UserID from AccessToken")
 		return nil, err

@@ -3,14 +3,16 @@ package model
 import (
 	"encoding/json"
 
-	"github.com/gofrs/uuid"
+	"github.com/TerrexTech/uuuid"
+	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/bson/objectid"
 	"github.com/pkg/errors"
 )
 
+// User represents a system-registered user.
 type User struct {
 	ID        objectid.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	UUID      uuid.UUID         `bson:"uuid,omitempty" json:"uuid,omitempty"`
+	UUID      uuuid.UUID        `bson:"uuid,omitempty" json:"uuid,omitempty"`
 	Email     string            `bson:"email,omitempty" json:"email,omitempty"`
 	FirstName string            `bson:"first_name,omitempty" json:"first_name,omitempty"`
 	LastName  string            `bson:"last_name,omitempty" json:"last_name,omitempty"`
@@ -19,7 +21,8 @@ type User struct {
 	Role      string            `bson:"role,omitempty" json:"role,omitempty"`
 }
 
-// marshalUser is a simple
+// marshalUser is alternative format for User for convenient
+// Marshalling/Unmarshalling operations.
 type marshalUser struct {
 	ID        objectid.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	UUID      string            `bson:"uuid,omitempty" json:"uuid,omitempty"`
@@ -31,6 +34,26 @@ type marshalUser struct {
 	Role      string            `bson:"role,omitempty" json:"role,omitempty"`
 }
 
+// MarshalBSON converts the User to its BSON representation.
+func (u User) MarshalBSON() ([]byte, error) {
+	mu := &marshalUser{
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Username:  u.Username,
+		Password:  u.Password,
+		Role:      u.Role,
+	}
+
+	if u.UUID.String() != (uuuid.UUID{}).String() {
+		mu.UUID = u.UUID.String()
+	}
+	return bson.Marshalv2(mu)
+}
+
+// MarshalJSON converts the current-user representation into its
+// JSON representation.
 func (u *User) MarshalJSON() ([]byte, error) {
 	mu := &marshalUser{
 		FirstName: u.FirstName,
@@ -42,13 +65,13 @@ func (u *User) MarshalJSON() ([]byte, error) {
 	}
 
 	mu.ID = u.ID
-	if u.UUID.String() != (uuid.UUID{}).String() {
-		mu.UUID = u.UUID.String()
-	}
+	mu.UUID = u.UUID.String()
 
 	return json.Marshal(mu)
 }
 
+// UnmarshalJSON converts the JSON representation of a User into the
+// local User-struct.
 func (u *User) UnmarshalJSON(in []byte) error {
 	m := make(map[string]interface{})
 	err := json.Unmarshal(in, &m)
@@ -63,7 +86,7 @@ func (u *User) UnmarshalJSON(in []byte) error {
 		return err
 	}
 
-	u.UUID, err = uuid.FromString(m["uuid"].(string))
+	u.UUID, err = uuuid.FromString(m["uuid"].(string))
 	if err != nil {
 		err = errors.Wrap(err, "Unmarshal Error: Error parsing user uuid")
 		return err
