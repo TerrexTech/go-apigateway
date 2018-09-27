@@ -3,7 +3,10 @@ package resolver
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
+
+	"github.com/TerrexTech/go-apigateway/gwerrors"
 
 	"github.com/Shopify/sarama"
 	"github.com/TerrexTech/go-apigateway/auth"
@@ -17,7 +20,7 @@ import (
 // authResponse is the GraphQL response on successful authentication.
 type authResponse struct {
 	authResponse *model.AuthResponse
-	authErr      error
+	authErr      *gwerrors.KRError
 }
 
 // AccessTokenResolver is the resolver for AccessToken type.
@@ -52,7 +55,6 @@ var authHandler = func(
 	// Timeout Context
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	authResChan := make(chan *authResponse)
 
 authResponseLoop:
 	// Check auth-response messages for matching CorrelationID and return result
@@ -62,10 +64,13 @@ authResponseLoop:
 			break authResponseLoop
 		case msg := <-cio.ConsumerMessages():
 			cio.MarkOffset() <- msg
-			go handleAuthResponse(msg, ts, cid, authResChan)
-			authRes := <-authResChan
-			if authRes.authErr == nil {
-				return authRes.authResponse, nil
+			authRes := handleAuthResponse(msg, ts, cid)
+			if authRes != nil {
+				if authRes.authErr == nil {
+					return authRes.authResponse, nil
+				}
+				log.Println("ppppppppppppppppppppppp")
+				return nil, errors.New(authRes.authErr.Error())
 			}
 		}
 	}
@@ -77,39 +82,42 @@ func handleAuthResponse(
 	msg *sarama.ConsumerMessage,
 	ts auth.TokenStoreI,
 	cid uuuid.UUID,
-	outChan chan<- *authResponse,
-) {
-	user, err := parseKafkaResponse(msg, cid)
-	if err != nil {
-		err = errors.Wrap(err, "Error authenticating user")
-		outChan <- &authResponse{
+) *authResponse {
+	user, krerr := parseKafkaResponse(msg, cid)
+	if krerr != nil {
+		err := errors.Wrap(krerr, "Error authenticating user")
+		krerr.Err = err
+		return &authResponse{
 			authResponse: nil,
-			authErr:      err,
+			authErr:      krerr,
 		}
-		return
+	}
+
+	if user == nil {
+		return nil
 	}
 
 	at, err := genAccessToken(user)
 	if err != nil {
 		err = errors.Wrap(err, "Error generating AccessToken")
-		outChan <- &authResponse{
+		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
+		return &authResponse{
 			authResponse: nil,
-			authErr:      err,
+			authErr:      krerr,
 		}
-		return
 	}
 
 	rt, err := genRefreshToken(ts, user)
 	if err != nil {
 		err = errors.Wrap(err, "Error generating RefreshToken")
-		outChan <- &authResponse{
+		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
+		return &authResponse{
 			authResponse: nil,
-			authErr:      err,
+			authErr:      krerr,
 		}
-		return
 	}
 
-	outChan <- &authResponse{
+	return &authResponse{
 		authResponse: &model.AuthResponse{
 			AccessToken:  at,
 			RefreshToken: rt,
@@ -118,25 +126,49 @@ func handleAuthResponse(
 	}
 }
 
-func parseKafkaResponse(msg *sarama.ConsumerMessage, cid uuuid.UUID) (*model.User, error) {
+func parseKafkaResponse(
+	msg *sarama.ConsumerMessage, cid uuuid.UUID,
+) (*model.User, *gwerrors.KRError) {
+	log.Println("aaaaaaaaaaaaaaaaaaaaaa")
 	kr := &esmodel.KafkaResponse{}
 	err := json.Unmarshal(msg.Value, kr)
 	if err != nil {
 		err = errors.Wrap(err, "LoginResponseHandler: Error unmarshalling message into KafkaResponse")
-		return nil, err
+		log.Println(err)
+		return nil, nil
+	}
+	log.Println("zzzzzzzzzzzzzzzzzzzz")
+	log.Printf("%+v", kr)
+	if kr.AggregateID != 1 {
+		return nil, nil
 	}
 
+	log.Println("bbbbbbbbbbbbbbbbbbbbbbb")
 	if cid.String() != kr.CorrelationID.String() {
-		return nil, errors.New("LoginResponseHandler: CorrelationID mistmatch")
+		log.Printf(
+			"Error: Correlation ID Mistmatch: Expected CorrelationID: %s, Got: %s",
+			cid.String(),
+			kr.CorrelationID.String(),
+		)
+		return nil, nil
 	}
 
+	if kr.Error != "" {
+		err = errors.Wrap(errors.New(kr.Error), "AuthKafkaResponseHandler Error")
+		krerr := gwerrors.NewKRError(err, kr.ErrorCode, err.Error())
+		return nil, krerr
+	}
+
+	log.Println("cccccccccccccccccccccccc")
 	user := &model.User{}
 	err = json.Unmarshal([]byte(kr.Result), user)
 	if err != nil {
 		err = errors.Wrap(err, "LoginResponseHandler: Error unmarshalling message-result into User")
-		return nil, err
+		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
+		return nil, krerr
 	}
 
+	log.Println("dddddddddddddddddddddddd")
 	return user, nil
 }
 

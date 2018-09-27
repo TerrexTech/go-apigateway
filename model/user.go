@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/TerrexTech/uuuid"
 	"github.com/mongodb/mongo-go-driver/bson"
@@ -79,6 +80,8 @@ func (u *User) UnmarshalJSON(in []byte) error {
 		err = errors.Wrap(err, "Unmarshal Error")
 		return err
 	}
+
+	log.Println(string(in))
 
 	u.ID, err = objectid.FromHex(m["_id"].(string))
 	if err != nil {

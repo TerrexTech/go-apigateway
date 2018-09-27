@@ -18,12 +18,12 @@
   version = "v3.0.0"
 
 [[projects]]
-  digest = "1:f76e22ee010eec64877b4369abf660bd9cff5fa6d4a0768d2640641436a4d6b8"
+  digest = "1:b81fd66feca3acca60fcfa826bd528467ee5264fd3fd3f45e76bfcf4a5300d0b"
   name = "github.com/TerrexTech/go-eventstore-models"
   packages = ["model"]
   pruneopts = "UT"
-  revision = "535f2e576341ee3bfee960c510c157399bf990ce"
-  version = "v2.1.1"
+  revision = "25dbcb94214e4582014a88e73cae53facef46b97"
+  version = "v2.2.0"
 
 [[projects]]
   digest = "1:0e6a18c6eed37c19e25e23fadbd9714348f0678c32436965d303f77a97b48375"
@@ -37,12 +37,12 @@
   version = "v2.1.1"
 
 [[projects]]
-  digest = "1:3a992f9e610a6676bf47cde959efe9cd0c3c1c6721200aea881281aa3dd47fae"
+  digest = "1:d71e70228bacba72da17121718f21cc34ec9799d6ec293f979c71ed5bc5dd608"
   name = "github.com/TerrexTech/go-mongoutils"
   packages = ["mongo"]
   pruneopts = "UT"
-  revision = "1f3b2508a7d9e49dd407ff34b9965d2bee2fbf40"
-  version = "v2.2.0"
+  revision = "429a49c6369c4acd5611db463eab01b2aee192e9"
+  version = "v3.0.0"
 
 [[projects]]
   digest = "1:cb1eb706e2ebae50593fb3614afbdd03c9465ee7653f67c0cbc4dd050889d0cb"
@@ -303,13 +303,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:318fbcf92cf6f5f01a8e28059612a09671e8d446c1be41020171dd3eeb3dfb9e"
+  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
   name = "golang.org/x/crypto"
-  packages = [
-    "bcrypt",
-    "blowfish",
-    "pbkdf2",
-  ]
+  packages = ["pbkdf2"]
   pruneopts = "UT"
   revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
@@ -319,7 +315,7 @@
   name = "golang.org/x/net"
   packages = ["context"]
   pruneopts = "UT"
-  revision = "2f5d2388922f370f4355f327fcf4cfe9f5583908"
+  revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
 
 [[projects]]
   branch = "master"
@@ -368,9 +364,9 @@
     "github.com/go-redis/redis",
     "github.com/graphql-go/graphql",
     "github.com/joho/godotenv",
+    "github.com/mongodb/mongo-go-driver/bson",
     "github.com/mongodb/mongo-go-driver/bson/objectid",
     "github.com/pkg/errors",
-    "golang.org/x/crypto/bcrypt",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
