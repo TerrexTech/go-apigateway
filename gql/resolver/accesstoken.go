@@ -39,7 +39,7 @@ var AccessTokenResolver = func(params graphql.ResolveParams) (interface{}, error
 		err = errors.Wrap(err, "Error renewing AccessToken")
 		return nil, err
 	}
-	return &model.AuthResponse{
+	return &model.AuthTokens{
 		AccessToken: at,
 	}, nil
 }

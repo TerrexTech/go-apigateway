@@ -9,7 +9,7 @@ import (
 
 	"github.com/TerrexTech/go-apigateway/auth"
 	"github.com/TerrexTech/go-apigateway/gql/schema"
-	"github.com/TerrexTech/go-apigateway/kafka"
+	"github.com/TerrexTech/go-apigateway/util"
 	"github.com/TerrexTech/go-commonutils/commonutil"
 	"github.com/go-redis/redis"
 	"github.com/graphql-go/graphql"
@@ -21,7 +21,7 @@ var (
 	// Schema represents a GraphQL schema
 	Schema       graphql.Schema
 	rootObject   map[string]interface{}
-	kafkaAdapter *kafka.Adapter
+	kafkaFactory *util.KafkaFactory
 )
 
 func initService() {
@@ -37,6 +37,7 @@ func initService() {
 
 	missingVar, err := commonutil.ValidateEnv(
 		"KAFKA_BROKERS",
+		"KAFKA_CONSUMER_GROUP_LOGIN",
 		"KAFKA_CONSUMER_TOPIC_LOGIN",
 		"KAFKA_PRODUCER_TOPIC_LOGIN",
 		"KAFKA_CONSUMER_TOPIC_REGISTER",
@@ -76,7 +77,7 @@ func initService() {
 
 	// Kafka Setup
 	brokers := os.Getenv("KAFKA_BROKERS")
-	kafkaAdapter := &kafka.Adapter{
+	kafkaFactory := &util.KafkaFactory{
 		Brokers: *commonutil.ParseHosts(brokers),
 	}
 
@@ -113,7 +114,7 @@ func initService() {
 	}
 
 	rootObject = map[string]interface{}{
-		"kafkaAdapter": kafkaAdapter,
+		"kafkaFactory": kafkaFactory,
 		"tokenStore":   tokenStore,
 		"db":           db,
 	}
