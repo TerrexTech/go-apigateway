@@ -11,8 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// producer creates a new Kafka-Producer used for producing the
-// responses after processing consumed Kafka-messages.
+// producer creates a new Kafka-Producer.
 func (ka *KafkaFactory) producer(
 	brokers []string,
 ) (*producer.Producer, error) {
@@ -26,6 +25,7 @@ func (ka *KafkaFactory) producer(
 	return resProducer, nil
 }
 
+// newProducerIO creates a generic producerIO able to handle any type of Kafka-Message.
 func (ka *KafkaFactory) newProducerIO(id string) (*producerIO, error) {
 	// Create Kafka Response-Producer
 	resProducer, err := ka.producer(ka.Brokers)
@@ -43,12 +43,10 @@ func (ka *KafkaFactory) newProducerIO(id string) (*producerIO, error) {
 	// Setup Producer I/O channels
 	producerInputChan := make(chan *sarama.ProducerMessage)
 	pio := &producerIO{
-		pid:               id,
 		producerInputChan: (chan<- *sarama.ProducerMessage)(producerInputChan),
 		producerErrChan:   resProducer.Errors(),
 	}
 
-	// The Kafka-Response post-processing the consumed events
 	go func() {
 		for msg := range producerInputChan {
 			resProducerInput <- msg
@@ -58,6 +56,7 @@ func (ka *KafkaFactory) newProducerIO(id string) (*producerIO, error) {
 	return pio, nil
 }
 
+// newProducerIO creates an EventProducerIO intended to produce Events.
 func (ka *KafkaFactory) newEventProducerIO(
 	id string, enableErrors bool,
 ) (*EventProducerIO, error) {
@@ -68,7 +67,6 @@ func (ka *KafkaFactory) newEventProducerIO(
 
 	inputChan := make(chan *model.Event)
 	epio := &EventProducerIO{
-		id:        id,
 		inputChan: (chan<- *model.Event)(inputChan),
 		errChan:   pio.errors(),
 	}
@@ -83,6 +81,7 @@ func (ka *KafkaFactory) newEventProducerIO(
 		}()
 	}
 
+	// Produce the Event
 	prodTopic := os.Getenv("KAFKA_PRODUCER_TOPIC_REGISTER")
 	go func() {
 		for msg := range inputChan {
@@ -107,6 +106,8 @@ func (ka *KafkaFactory) newEventProducerIO(
 	return epio, nil
 }
 
+// newKafkaResponseProducerIO creates an KafkaResponseProducerIO intended to produce
+// KafkaResponses.
 func (ka *KafkaFactory) newKafkaResponseProducerIO(
 	id string, enableErrors bool,
 ) (*KafkaResponseProducerIO, error) {
@@ -117,7 +118,6 @@ func (ka *KafkaFactory) newKafkaResponseProducerIO(
 
 	inputChan := make(chan *model.KafkaResponse)
 	krpio := &KafkaResponseProducerIO{
-		id:        id,
 		inputChan: (chan<- *model.KafkaResponse)(inputChan),
 		errChan:   pio.errors(),
 	}
@@ -134,21 +134,21 @@ func (ka *KafkaFactory) newKafkaResponseProducerIO(
 
 	// The Kafka-Response post-processing the consumed events
 	go func() {
-		for msg := range inputChan {
-			msgJSON, err := json.Marshal(msg)
+		for kr := range inputChan {
+			msgJSON, err := json.Marshal(kr)
 			if err != nil {
 				err = errors.Wrapf(err,
 					"Error Marshalling KafkaResponse with CorrelationID: %s and AggregateID: %d, "+
 						"on topic %s",
-					msg.CorrelationID,
-					msg.AggregateID,
-					msg.Topic,
+					kr.CorrelationID,
+					kr.AggregateID,
+					kr.Topic,
 				)
 				log.Println(err)
 				continue
 			}
 
-			producerMsg := producer.CreateMessage(msg.Topic, msgJSON)
+			producerMsg := producer.CreateMessage(kr.Topic, msgJSON)
 			pio.input() <- producerMsg
 		}
 	}()
@@ -156,33 +156,34 @@ func (ka *KafkaFactory) newKafkaResponseProducerIO(
 	return krpio, nil
 }
 
+// EnsureEventProducerIO creates and caches a new ProducerIO with that topic if one
+// doesn't exist. Otherwise the existing cached producer is returned.
 func (ka *KafkaFactory) EnsureEventProducerIO(
-	topic string,
-	id string,
-	enableErrors bool,
+	topic string, enableErrors bool,
 ) (*EventProducerIO, error) {
-	if epioStore[id] == nil {
-		p, err := ka.newEventProducerIO(id, enableErrors)
+	if epioStore[topic] == nil {
+		p, err := ka.newEventProducerIO(topic, enableErrors)
 		if err != nil {
 			err = errors.Wrap(err, "Error creating ProducerEventIO")
 			return nil, err
 		}
-		epioStore[id] = p
+		epioStore[topic] = p
 	}
-	return epioStore[id], nil
+	return epioStore[topic], nil
 }
 
+// EnsureKafkaResponseProducerIO creates and caches a new ProducerIO with that topic if
+// one doesn't exist. Otherwise the existing cached producer is returned.
 func (ka *KafkaFactory) EnsureKafkaResponseProducerIO(
-	id string,
-	enableErrors bool,
+	topic string, enableErrors bool,
 ) (*KafkaResponseProducerIO, error) {
-	if krpioStore[id] == nil {
-		p, err := ka.newKafkaResponseProducerIO(id, enableErrors)
+	if krpioStore[topic] == nil {
+		p, err := ka.newKafkaResponseProducerIO(topic, enableErrors)
 		if err != nil {
 			err = errors.Wrap(err, "Error creating ProducerIO")
 			return nil, err
 		}
-		krpioStore[id] = p
+		krpioStore[topic] = p
 	}
-	return krpioStore[id], nil
+	return krpioStore[topic], nil
 }

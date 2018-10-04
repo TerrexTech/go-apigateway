@@ -34,7 +34,7 @@ var RegisterResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	ka := rootValue["kafkaFactory"].(*util.KafkaFactory)
 	ts := rootValue["tokenStore"].(auth.TokenStoreI)
 
-	epio, err := ka.EnsureEventProducerIO(prodTopic, prodTopic, false)
+	epio, err := ka.EnsureEventProducerIO(prodTopic, false)
 	if err != nil {
 		err = errors.Wrap(err, "Error creating ProducerIO for RegisterResolver")
 		return nil, err
@@ -84,6 +84,8 @@ var RegisterResolver = func(params graphql.ResolveParams) (interface{}, error) {
 				return registerResp.tokens, nil
 			}
 			ae := registerResp.err
+			err = errors.Wrap(ae.Err, "Registration Error")
+			log.Println(err)
 			outErr := fmt.Errorf("%d: Registration Error", ae.Code)
 			return nil, outErr
 		}

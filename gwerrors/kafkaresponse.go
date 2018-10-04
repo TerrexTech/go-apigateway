@@ -2,14 +2,14 @@ package gwerrors
 
 import "fmt"
 
-// KRError represents a KafkaResponse error.
+// KRError represents an error from KafkaResponse.
 type KRError struct {
 	Code    int16
 	Err     error
 	Message string
 }
 
-// NewKRError creates a new KRError from provided parameters.
+// NewKRError creates a new error for KafkaResponse from provided parameters.
 func NewKRError(err error, code int16, msg string) *KRError {
 	return &KRError{
 		Code:    code,

@@ -1,0 +1,41 @@
+project_name: go-apigateway
+
+builds:
+  - main: ./main/
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+
+archive:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  format: binary
+
+sign:
+  artifacts: none
+
+release:
+  github:
+    owner: TerrexTech
+    name: go-apigateway
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^bors:'
+      - '^docs:'
+      - typo
+
+dockers:
+  - image: terrextech/go-apigateway
+    binary: go-apigateway
+    dockerfile: Dockerfile_ci
+    goos: linux
+    goarch: amd64
+    tag_templates:
+      - "{{ .Tag }}"
+      - latest
+    extra_files:
+      - .env

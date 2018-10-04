@@ -1,0 +1,64 @@
+dist: trusty
+
+services:
+  - docker
+
+language: go
+
+go:
+  - "1.11"
+
+# Only clone the most recent commit
+git:
+  depth: 1
+
+branches:
+  except:
+    - staging.tmp
+
+env:
+  global:
+    - DEP_VERSION="0.5.0"
+    - DOCKER_COMPOSE_VERSION=1.22.0
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_install:
+  # Download dep binary to $GOPATH/bin
+  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
+  - chmod +x $GOPATH/bin/dep
+
+  # Docker-Compose
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+    -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+install:
+  # Only install local deps if its a tagged-commit
+  - if [[ ! -z ${TRAVIS_TAG} ]]; then dep ensure; fi
+
+before_script:
+  - chmod +x ./run_test.sh
+
+script:
+  - ./run_test.sh
+
+# after_script:
+#   - docker-compose -f ./test/docker-compose.yaml down --volumes --rmi all
+
+after_success:
+  - test -n "$TRAVIS_TAG"
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash -s -- --debug --skip-validate
+    on:
+      all_branches: true
+      tags: true

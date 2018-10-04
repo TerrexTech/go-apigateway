@@ -1,5 +1,4 @@
 .history
 .vagrant
 .vscode
-debug.test
 vendor*

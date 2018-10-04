@@ -6,6 +6,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+// RootQuery is the schema-definition for GraphQL queries.
 var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{

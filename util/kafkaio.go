@@ -5,62 +5,50 @@ import (
 	"github.com/TerrexTech/go-eventstore-models/model"
 )
 
+// producerIO creates a producer for generic Kafka-Messages.
 type producerIO struct {
-	pid               string
 	producerErrChan   <-chan *sarama.ProducerError
 	producerInputChan chan<- *sarama.ProducerMessage
 }
 
-func (pio *producerIO) id() string {
-	return pio.pid
-}
-
-// ProducerErrors returns send-channel where producer errors are published.
+// errors returns send-channel using which producer errors are published.
 func (pio *producerIO) errors() <-chan *sarama.ProducerError {
 	return pio.producerErrChan
 }
 
-// ProducerInput returns receive-channel where kafka-responses can be produced.
+// input returns receive-channel where kafka-responses can be produced.
 func (pio *producerIO) input() chan<- *sarama.ProducerMessage {
 	return pio.producerInputChan
 }
 
+// KafkaResponseProducerIO creates a producer for Kafka-Message of type KafkaResponse.
 type KafkaResponseProducerIO struct {
-	id        string
 	errChan   <-chan *sarama.ProducerError
 	inputChan chan<- *model.KafkaResponse
 }
 
-func (pio *KafkaResponseProducerIO) ID() string {
-	return pio.id
-}
-
-// ProducerErrors returns send-channel where producer errors are published.
+// Errors returns send-channel where producer errors are published.
 func (pio *KafkaResponseProducerIO) Errors() <-chan *sarama.ProducerError {
 	return pio.errChan
 }
 
-// ProducerInput returns receive-channel where kafka-responses can be produced.
+// Input returns receive-channel using which KafkaResponses can be produced.
 func (pio *KafkaResponseProducerIO) Input() chan<- *model.KafkaResponse {
 	return pio.inputChan
 }
 
+// EventProducerIO creates a producer for Kafka-Message of type Events.
 type EventProducerIO struct {
-	id        string
 	errChan   <-chan *sarama.ProducerError
 	inputChan chan<- *model.Event
 }
 
-func (epio *EventProducerIO) ID() string {
-	return epio.id
-}
-
-// ProducerErrors returns send-channel where producer errors are published.
+// Errors returns send-channel where producer errors are published.
 func (epio *EventProducerIO) Errors() <-chan *sarama.ProducerError {
 	return epio.errChan
 }
 
-// ProducerInput returns receive-channel where kafka-responses can be produced.
+// Input returns receive-channel using which Events can be produced.
 func (epio *EventProducerIO) Input() chan<- *model.Event {
 	return epio.inputChan
 }

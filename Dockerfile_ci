@@ -1,0 +1,6 @@
+# Dockerfile used by GoReleaser
+FROM scratch
+LABEL maintainer="Jaskaranbir Dhillon"
+
+COPY /go-apigateway ./
+ENTRYPOINT ["./go-apigateway"]
