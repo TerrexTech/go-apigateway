@@ -49,5 +49,37 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: resolver.AccessTokenResolver,
 		},
+
+		"report": &graphql.Field{
+			Type:        gqltype.AuthResponse,
+			Description: "Report Generation",
+			Args: graphql.FieldConfigArgument{
+				"item_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"rs_customer_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"device_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"timestamp": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"temp_in": &graphql.ArgumentConfig{
+					Type: graphql.Float,
+				},
+				"humidity": &graphql.ArgumentConfig{
+					Type: graphql.Float,
+				},
+				"ethylene": &graphql.ArgumentConfig{
+					Type: graphql.Float,
+				},
+				"carbon_di": &graphql.ArgumentConfig{
+					Type: graphql.Float,
+				},
+			},
+			Resolve: resolver.ReportResolver,
+		},
 	},
 })

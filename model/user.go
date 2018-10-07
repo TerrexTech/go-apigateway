@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/TerrexTech/uuuid"
-	"github.com/mongodb/mongo-go-driver/bson"
+	bson "github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/bson/objectid"
 	"github.com/pkg/errors"
 )

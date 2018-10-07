@@ -76,6 +76,10 @@
   name = "github.com/pkg/errors"
   version = "0.8.0"
 
+[[constraint]]
+  name = "github.com/mongodb/mongo-go-driver"
+  version = "0.0.15"
+
 [prune]
   go-tests = true
   unused-packages = true

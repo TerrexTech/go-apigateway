@@ -40,5 +40,21 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: resolver.AccessTokenResolver,
 		},
+		"report": &graphql.Field{
+			Type:        gqltype.ReportResponse,
+			Description: "Get Ethylene report",
+			Args: graphql.FieldConfigArgument{
+				"item_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"timestamp": &graphql.ArgumentConfig{
+					Type: graphql.DateTime,
+				},
+				"report_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: resolver.ReportResolver,
+		},
 	},
 })
