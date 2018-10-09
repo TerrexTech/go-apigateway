@@ -191,7 +191,7 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:6d528eefcf611dfe5228c3ada9851138591a2459505f9d76947129cf33e2929f"
+  digest = "1:a7ea439e1d8ed7f5862240c5f845027c026252ce3616e14c9c10160a20cf70b4"
   name = "github.com/mongodb/mongo-go-driver"
   packages = [
     "bson",
@@ -204,8 +204,8 @@
     "bson/parser/ast",
   ]
   pruneopts = "UT"
-  revision = "71de844febff6ac5b6fc6ba165e24e9677d2ee05"
-  version = "v0.0.15"
+  revision = "e9228a40a480a5403b7256fb755ab000ff754c35"
+  version = "v0.0.14"
 
 [[projects]]
   digest = "1:e39a5ee8fcbec487f8fc68863ef95f2b025e0739b0e4aa55558a2b4cf8f0ecf0"

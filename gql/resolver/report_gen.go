@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/TerrexTech/go-apigateway/auth"
 	"github.com/TerrexTech/go-apigateway/gwerrors"
 	"github.com/TerrexTech/go-apigateway/model"
 	"github.com/TerrexTech/go-apigateway/util"
@@ -18,7 +17,7 @@ import (
 )
 
 // EthyleneResolver is the resolver for Ethylene GraphQL query.
-var ReportResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var CreateReportData = func(params graphql.ResolveParams) (interface{}, error) {
 	prodTopic := os.Getenv("KAFKA_PRODUCER_TOPIC_REPORT")
 	consGroup := os.Getenv("KAFKA_CONSUMER_GROUP_REPORT")
 	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_REPORT")
@@ -27,7 +26,7 @@ var ReportResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	kf := rootValue["kafkaFactory"].(*util.KafkaFactory)
 
 	// Marshal Report
-	ethyleneJSON, err := json.Marshal(params.Args)
+	reportJSON, err := json.Marshal(params.Args)
 	if err != nil {
 		err = errors.Wrap(err, "EthyleneResolver: Error marshalling ethylene report into JSON")
 		return nil, err
@@ -36,7 +35,7 @@ var ReportResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	// CorrelationID
 	cid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "EthyleneResolver: Error generating UUID for cid")
+		err = errors.Wrap(err, "CreateDataResolver: Error generating UUID for cid")
 		return nil, err
 	}
 	krpio, err := kf.EnsureKafkaResponseProducerIO(prodTopic, false)
@@ -48,9 +47,9 @@ var ReportResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	go func() {
 		krpio.Input() <- &esmodel.KafkaResponse{
 			CorrelationID: cid,
-			Input:         ethyleneJSON,
+			Input:         reportJSON,
 			Topic:         prodTopic,
-			AggregateID: 3,
+			AggregateID:   3,
 		}
 	}()
 
@@ -70,7 +69,7 @@ reportResponseLoop:
 		case <-ctx.Done():
 			break reportResponseLoop
 		case msg := <-cio:
-			reportResponse := handleReportResponse(msg, cid)
+			reportResponse := handleGenDataReportResponse(msg, cid)
 			if reportResponse != nil {
 				if reportResponse.err == nil {
 					return reportResponse.report, nil
@@ -83,20 +82,20 @@ reportResponseLoop:
 	return nil, errors.New("Timed out")
 }
 
-type reportResponse {
-	report model.Report
+type ReportResponse struct {
+	report *model.Report
 	err    *gwerrors.KRError
 }
 
-func handleReportResponse(
+func handleGenDataReportResponse(
 	kr esmodel.KafkaResponse,
 	cid uuuid.UUID,
-) *reportResponse {
+) *ReportResponse {
 	if kr.Error != "" {
 		err := errors.New(kr.Error)
 		err = errors.Wrap(err, "ReportResponseHandler: Error in KafkaResponse")
 		krerr := gwerrors.NewKRError(err, kr.ErrorCode, err.Error())
-		return &reportResponse{
+		return &ReportResponse{
 			report: nil,
 			err:    krerr,
 		}
@@ -111,13 +110,13 @@ func handleReportResponse(
 		)
 		log.Println(err)
 		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
-		return &reportResponse{
+		return &ReportResponse{
 			report: nil,
 			err:    krerr,
 		}
 	}
-	return &reportResponse{
+	return &ReportResponse{
 		report: report,
-		err: nil,
+		err:    nil,
 	}
 }

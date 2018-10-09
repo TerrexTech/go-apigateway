@@ -51,7 +51,7 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		},
 
 		"report": &graphql.Field{
-			Type:        gqltype.AuthResponse,
+			Type:        gqltype.ReportResponse,
 			Description: "Report Generation",
 			Args: graphql.FieldConfigArgument{
 				"item_id": &graphql.ArgumentConfig{
@@ -60,26 +60,20 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 				"rs_customer_id": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"device_id": &graphql.ArgumentConfig{
+				"report_id": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"timestamp": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
-				"temp_in": &graphql.ArgumentConfig{
-					Type: graphql.Float,
+				"report_type": &graphql.ArgumentConfig{
+					Type: graphql.String,
 				},
-				"humidity": &graphql.ArgumentConfig{
-					Type: graphql.Float,
-				},
-				"ethylene": &graphql.ArgumentConfig{
-					Type: graphql.Float,
-				},
-				"carbon_di": &graphql.ArgumentConfig{
-					Type: graphql.Float,
+				"version": &graphql.ArgumentConfig{
+					Type: graphql.Int,
 				},
 			},
-			Resolve: resolver.ReportResolver,
+			Resolve: resolver.CreateReportData,
 		},
 	},
 })
