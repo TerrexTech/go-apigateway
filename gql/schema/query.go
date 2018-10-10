@@ -41,7 +41,7 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: resolver.AccessTokenResolver,
 		},
 		"createData": &graphql.Field{
-			Type:        gqltype.ReportResponse,
+			Type:        gqltype.SearchReportResponses,
 			Description: "Create data",
 			Args: graphql.FieldConfigArgument{
 				"test": &graphql.ArgumentConfig{
@@ -55,6 +55,43 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				// 	},
 			},
 			Resolve: resolver.CreateReportData,
+		},
+		"searchReport": &graphql.Field{
+			Type:        gqltype.SearchReportResponses,
+			Description: "Generate report based on search",
+			Args: graphql.FieldConfigArgument{
+				"inventory": &graphql.ArgumentConfig{
+					Type: graphql.NewList(searchFields),
+				},
+				"metric": &graphql.ArgumentConfig{
+					Type: graphql.NewList(searchFields),
+				},
+				// "reporttype": &graphql.ArgumentConfig{
+				// 	Type: graphql.String,
+				// },
+			},
+			Resolve: resolver.SearchReport,
+		},
+	},
+})
+
+var searchFields = graphql.NewObject(graphql.ObjectConfig{
+	Name: "searchFields",
+	Fields: graphql.Fields{
+		"fieldname": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datatype": &graphql.Field{
+			Type: graphql.String,
+		},
+		"equal": &graphql.Field{
+			Type: graphql.String,
+		},
+		"upper_limit": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"lower_limit": &graphql.Field{
+			Type: graphql.Float,
 		},
 	},
 })

@@ -51,7 +51,7 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		},
 
 		"report": &graphql.Field{
-			Type:        gqltype.ReportResponse,
+			Type:        gqltype.SearchReportResponses,
 			Description: "Report Generation",
 			Args: graphql.FieldConfigArgument{
 				"item_id": &graphql.ArgumentConfig{
