@@ -61,10 +61,10 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			Description: "Generate report based on search",
 			Args: graphql.FieldConfigArgument{
 				"inventory": &graphql.ArgumentConfig{
-					Type: graphql.NewList(searchFields),
+					Type: graphql.String,
 				},
 				"metric": &graphql.ArgumentConfig{
-					Type: graphql.NewList(searchFields),
+					Type: graphql.String,
 				},
 				// "reporttype": &graphql.ArgumentConfig{
 				// 	Type: graphql.String,
@@ -75,23 +75,23 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var searchFields = graphql.NewObject(graphql.ObjectConfig{
-	Name: "searchFields",
-	Fields: graphql.Fields{
-		"fieldname": &graphql.Field{
-			Type: graphql.String,
-		},
-		"datatype": &graphql.Field{
-			Type: graphql.String,
-		},
-		"equal": &graphql.Field{
-			Type: graphql.String,
-		},
-		"upper_limit": &graphql.Field{
-			Type: graphql.Float,
-		},
-		"lower_limit": &graphql.Field{
-			Type: graphql.Float,
-		},
-	},
-})
+// var searchFields = graphql.NewObject(graphql.ObjectConfig{
+// 	Name: "asd",
+// 	Fields: graphql.Fields{
+// 		"fieldname": &graphql.Field{
+// 			Type: graphql.String,
+// 		},
+// 		// "datatype": &graphql.Field{
+// 		// 	Type: graphql.String,
+// 		// },
+// 		// "equal": &graphql.Field{
+// 		// 	Type: graphql.String,
+// 		// },
+// 		// "upper_limit": &graphql.Field{
+// 		// 	Type: graphql.Float,
+// 		// },
+// 		// "lower_limit": &graphql.Field{
+// 		// 	Type: graphql.Float,
+// 		// },
+// 	},
+// })

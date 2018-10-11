@@ -97,9 +97,9 @@ func (r *Metric) UnmarshalBSON(in []byte) error {
 		return err
 	}
 
-	if m["_id"] != nil {
-		r.ID = m["_id"].(objectid.ObjectID)
-	}
+	// if m["_id"] != nil {
+	// 	r.ID = m["_id"].(objectid.ObjectID)
+	// }
 
 	if m["item_id"] != nil {
 		r.ItemID, err = uuuid.FromString(m["item_id"].(string))
@@ -222,9 +222,9 @@ func (r *Metric) UnmarshalJSON(in []byte) error {
 		return err
 	}
 
-	if m["_id"] != nil {
-		r.ID = m["_id"].(objectid.ObjectID)
-	}
+	// if m["_id"] != nil {
+	// 	r.ID = m["_id"].(objectid.ObjectID)
+	// }
 
 	if m["item_id"] != nil {
 		r.ItemID, err = uuuid.FromString(m["item_id"].(string))

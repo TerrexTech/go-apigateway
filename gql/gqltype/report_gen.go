@@ -7,10 +7,10 @@ var SearchReportResponses = graphql.NewObject(
 		Name: "SearchReportResponse",
 		Fields: graphql.Fields{
 			"inventory": &graphql.Field{
-				Type: Inventory,
+				Type: graphql.String,
 			},
 			"metric": &graphql.Field{
-				Type: Metric,
+				Type: graphql.String,
 			},
 			// "reporttype": &graphql.Field{
 			// 	Type: graphql.String,

@@ -94,9 +94,9 @@ func (r *Report) UnmarshalBSON(in []byte) error {
 		return err
 	}
 
-	if m["_id"] != nil {
-		r.ID = m["_id"].(objectid.ObjectID)
-	}
+	// if m["_id"] != nil {
+	// 	r.ID = m["_id"].(objectid.ObjectID)
+	// }
 
 	if m["report_id"] != nil {
 		r.ReportID, err = uuuid.FromString(m["report_id"].(string))
@@ -187,9 +187,9 @@ func (r *Report) UnmarshalJSON(in []byte) error {
 		return err
 	}
 
-	if m["_id"] != nil {
-		r.ID = m["_id"].(objectid.ObjectID)
-	}
+	// if m["_id"] != nil {
+	// 	r.ID = m["_id"].(objectid.ObjectID)
+	// }
 
 	if m["report_id"] != nil {
 		r.ReportID, err = uuuid.FromString(m["report_id"].(string))
