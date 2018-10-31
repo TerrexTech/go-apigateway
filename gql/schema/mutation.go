@@ -75,5 +75,30 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: resolver.CreateReportData,
 		},
+		"addFlashSale": &graphql.Field{
+			Type:        gqltype.SearchReportResponses,
+			Description: "Flash sale insert",
+			Args: graphql.FieldConfigArgument{
+				"flash_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"item_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"upc": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"sku": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"origin": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: resolver.CreateReportData,
+		},
 	},
 })

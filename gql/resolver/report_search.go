@@ -31,7 +31,7 @@ var SearchReport = func(params graphql.ResolveParams) (interface{}, error) {
 	searchReportJSON, err := json.Marshal(params.Args)
 	log.Println(params.Args)
 	if err != nil {
-		err = errors.Wrap(err, "RegisterResolver: Error marshalling credentials into JSON")
+		err = errors.Wrap(err, "searchReportResolver: Error marshalling credentials into JSON")
 		return nil, err
 	}
 
@@ -50,18 +50,18 @@ var SearchReport = func(params graphql.ResolveParams) (interface{}, error) {
 
 	epio, err := ka.EnsureEventProducerIO(prodTopic, false)
 	if err != nil {
-		err = errors.Wrap(err, "Error creating ProducerIO for RegisterResolver")
+		err = errors.Wrap(err, "Error creating ProducerIO for SearchReportResolver")
 		return nil, err
 	}
 	// CorrelationID
 	cid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "RegisterResolver: Error generating UUID for cid")
+		err = errors.Wrap(err, "SearchReportResolver: Error generating UUID for cid")
 		return nil, err
 	}
 	eventID, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "RegisterResolver: Error generating UUID for Register-Event")
+		err = errors.Wrap(err, "SearchReportResolver: Error generating UUID for Register-Event")
 		return nil, err
 	}
 
@@ -78,7 +78,7 @@ var SearchReport = func(params graphql.ResolveParams) (interface{}, error) {
 			Timestamp:     time.Now(),
 			UUID:          eventID,
 			YearBucket:    2018,
-			Version: 1,
+			Version:       1,
 		}
 	}()
 	// Timeout Context
