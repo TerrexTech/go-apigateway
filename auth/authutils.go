@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/TerrexTech/go-apigateway/auth/key"
-	"github.com/TerrexTech/go-apigateway/model"
+	"github.com/TerrexTech/go-apigateway/gql/entity/auth/model"
 	"github.com/TerrexTech/uuuid"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
@@ -17,8 +17,8 @@ func RefreshAccessToken(
 	rt *model.RefreshToken,
 	user *model.User,
 ) (*model.AccessToken, error) {
-	if user.UUID != rt.Sub {
-		return nil, errors.New("Error renewing AccessToken: User UUIDs don't match")
+	if user.UserID != rt.Sub {
+		return nil, errors.New("error renewing AccessToken: UserID mismatch")
 	}
 
 	uid := rt.Sub
@@ -40,7 +40,7 @@ func RefreshAccessToken(
 
 	claims := &model.Claims{
 		Role: user.Role,
-		Sub:  user.UUID,
+		Sub:  user.UserID,
 	}
 	return model.NewAccessToken(15*time.Minute, claims)
 }

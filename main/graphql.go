@@ -1,14 +1,119 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
+	"github.com/TerrexTech/go-apigateway/auth"
+	"github.com/TerrexTech/go-apigateway/gql/schema"
+	"github.com/TerrexTech/go-apigateway/util"
+	"github.com/TerrexTech/go-commonutils/commonutil"
+	"github.com/go-redis/redis"
 	"github.com/graphql-go/graphql"
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
+
+var (
+	// Schema represents a GraphQL schema
+	Schema       graphql.Schema
+	rootObject   map[string]interface{}
+	kafkaFactory *util.KafkaFactory
+)
+
+func initServices() {
+	// Load environment-file.
+	// Env vars will be read directly from environment if this file fails loading
+	err := godotenv.Load()
+	if err != nil {
+		err = errors.Wrap(err,
+			".env file not found, env-vars will be read as set in environment",
+		)
+		log.Println(err)
+	}
+
+	missingVar, err := commonutil.ValidateEnv(
+		"KAFKA_BROKERS",
+
+		"KAFKA_PRODUCER_EVENT_TOPIC",
+
+		"KAFKA_CONSUMER_TOPIC_USERAUTH",
+		"KAFKA_CONSUMER_TOPIC_INVENTORY",
+
+		"REDIS_HOST",
+		"REDIS_DB",
+	)
+	if err != nil {
+		log.Fatalf(
+			"Error: Environment variable %s is required but was not found", missingVar,
+		)
+	}
+
+	// Redis Setup
+	redisHost := os.Getenv("REDIS_HOST")
+	redisDBStr := os.Getenv("REDIS_DB")
+	redisDB, err := strconv.Atoi(redisDBStr)
+	if err != nil {
+		err = errors.Wrap(err, "Error converting REDIS_DB value to int")
+		log.Fatalln(err)
+	}
+	tokenStore, err := auth.NewRedis(&redis.Options{
+		Addr: redisHost,
+		DB:   redisDB,
+	})
+	if err != nil {
+		err = errors.Wrap(err, "Error creating Redis client")
+		log.Println(err)
+		return
+	}
+
+	// Kafka Setup
+	ctx, cancel := context.WithCancel(context.Background())
+	closeChan := make(chan struct{})
+	g, ctx := errgroup.WithContext(ctx)
+
+	go func() {
+		<-closeChan
+		cancel()
+	}()
+
+	brokers := os.Getenv("KAFKA_BROKERS")
+	eventProdTopic := os.Getenv("KAFKA_PRODUCER_EVENT_TOPIC")
+	kafkaFactory, err := util.NewKafkaFactory(
+		ctx,
+		g,
+		*commonutil.ParseHosts(brokers),
+		eventProdTopic,
+	)
+	if err != nil {
+		err = errors.Wrap(err, "Error creating EventProducer")
+		log.Fatalln(err)
+	}
+
+	// The GraphQL context
+	rootObject = map[string]interface{}{
+		"kafkaFactory": kafkaFactory,
+		"tokenStore":   tokenStore,
+		"appContext":   ctx,
+		"errGroup":     g,
+		"closeChan":    (chan<- struct{})(closeChan),
+	}
+
+	Schema, err = graphql.NewSchema(graphql.SchemaConfig{
+		Query:    schema.RootQuery,
+		Mutation: schema.RootMutation,
+	})
+	if err != nil {
+		err = errors.Wrap(err, "Error creating GraphQL Schema")
+		log.Fatalln(err)
+	}
+}
 
 // graphqlHandler handles GraphQL requests.
 func graphqlHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,5 +145,9 @@ func graphqlHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("GQL Error: %v", result.Errors)
 	}
 
-	json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(result)
+	if err != nil {
+		err = errors.Wrap(err, "Error writing response")
+		log.Println(err)
+	}
 }

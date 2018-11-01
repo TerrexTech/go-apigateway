@@ -4,39 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/TerrexTech/go-eventstore-models/model"
-	"github.com/TerrexTech/go-kafkautils/consumer"
+	"github.com/TerrexTech/go-kafkautils/kafka"
 	"github.com/TerrexTech/uuuid"
-	cluster "github.com/bsm/sarama-cluster"
 	"github.com/pkg/errors"
-)
-
-// consumer creates a new Kafka-Consumer which listens for the events.
-func (kf *KafkaFactory) consumer(
-	name string, topics []string,
-) (*consumer.Consumer, error) {
-	saramaCfg := cluster.NewConfig()
-	saramaCfg.Consumer.Offsets.Initial = sarama.OffsetOldest
-	saramaCfg.Consumer.MaxProcessingTime = 10 * time.Second
-	saramaCfg.Consumer.Return.Errors = true
-
-	config := &consumer.Config{
-		ConsumerGroup: name,
-		KafkaBrokers:  kf.Brokers,
-		SaramaConfig:  saramaCfg,
-		Topics:        topics,
-	}
-
-	return consumer.New(config)
-}
-
-var (
-	cidMap        = make(map[string]map[string]chan model.KafkaResponse)
-	cidMapLock    = &sync.RWMutex{}
-	topicMapLocks = make(map[string]*sync.RWMutex)
 )
 
 // EnsureConsumerIO creates a new Kafka-Consumer if one does not exist for that specific
@@ -45,80 +18,104 @@ var (
 // This is not analogous to traditional Consumers that simply forward any Kafka Messages.
 // This returns a new channel for every request. The request's response is then sent on that
 // channel when the response arrives. It determines the correct response for request by using
-// the CorrelationID. If a response arrives before the request for it is registered, it caches
+// the UUID. If a response arrives before the request for it is registered, it caches
 // the response until the request for it is received, and the response is sent out as soon
 // request arrives.
 func (kf *KafkaFactory) EnsureConsumerIO(
 	group string,
 	topic string,
 	enableErrors bool,
-	cid uuuid.UUID,
+	uuid uuuid.UUID,
 ) (<-chan model.KafkaResponse, error) {
-	if topicMapLocks[topic] == nil {
-		topicMapLocks[topic] = &sync.RWMutex{}
+	consCache := kf.cacheConfig
+	if consCache.topicMapLocks[topic] == nil {
+		consCache.topicMapLocks[topic] = &sync.RWMutex{}
 	}
 
 	id := group + topic
-	if cioStore[id] == nil {
-		// Create Kafka Event-Consumer
-		reqConsumer, err := kf.consumer(group, []string{topic})
+	if consCache.cioStore[id] == nil {
+		// Create Kafka Aggregate-Response Consumer
+		resConsumer, err := newResponseConsumer(
+			kf.ctx,
+			kf.errGroup,
+			&kafka.ConsumerConfig{
+				GroupName:    group,
+				KafkaBrokers: kf.Brokers,
+				Topics:       []string{topic},
+			},
+		)
 		if err != nil {
 			err = errors.Wrap(err, "Error Creating Response ConsumerGroup for Events")
 			return nil, err
 		}
-		log.Println("Created Kafka Response ConsumerGroup")
+		log.Println("--> Created Kafka Response ConsumerGroup")
 
-		cioStore[id] = reqConsumer
+		consCache.cioStore[id] = resConsumer
 
 		// Handle Messages
-		go func() {
-			for msg := range reqConsumer.Messages() {
-				reqConsumer.MarkOffset(msg, "")
-				go handleKafkaConsumerMsg(
-					msg,
-					cidMap,
-					cidMapLock,
-					topicMapLocks[msg.Topic],
-				)
+		kf.errGroup.Go(func() error {
+			for {
+				select {
+				case <-kf.ctx.Done():
+					log.Printf("--> Closing Consumer-loop on Topic: %s", topic)
+					return errors.New("service-context closed")
+				case msg := <-resConsumer.Messages():
+					go handleKafkaConsumerMsg(
+						msg,
+						consCache.uuidMap,
+						consCache.uuidMapLock,
+						consCache.topicMapLocks[msg.Topic],
+					)
+				}
 			}
-		}()
+		})
 	}
 
-	// Update CorrelationIDs for that specific topic
-	cidMapLock.RLock()
-	topicCIDMap := cidMap[topic]
-	cidMapLock.RUnlock()
+	// Update UUIDs for that specific topic
+	consCache.uuidMapLock.RLock()
+	topicCIDMap := consCache.uuidMap[topic]
+	consCache.uuidMapLock.RUnlock()
 
 	if topicCIDMap == nil {
-		cidMapLock.Lock()
-		cidMap[topic] = map[string]chan model.KafkaResponse{}
-		cidMapLock.Unlock()
+		consCache.uuidMapLock.Lock()
+		consCache.uuidMap[topic] = map[string]chan model.KafkaResponse{}
+		consCache.uuidMapLock.Unlock()
 
-		cidMapLock.RLock()
-		topicCIDMap = cidMap[topic]
-		cidMapLock.RUnlock()
+		consCache.uuidMapLock.RLock()
+		topicCIDMap = consCache.uuidMap[topic]
+		consCache.uuidMapLock.RUnlock()
 	}
 
-	// 1 buffer because channel might be read later after its written
-	readChan := make(chan model.KafkaResponse, 1)
-	tl := topicMapLocks[topic]
-	tl.Lock()
-	topicCIDMap[cid.String()] = readChan
-	tl.Unlock()
+	tl := consCache.topicMapLocks[topic]
 
-	return (<-chan model.KafkaResponse)(readChan), nil
+	tl.RLock()
+	topicCID := topicCIDMap[uuid.String()]
+	tl.RUnlock()
+	if topicCID == nil {
+		// 1 buffer because channel might be read later after its written
+		readChan := make(chan model.KafkaResponse, 1)
+		tl.Lock()
+		topicCIDMap[uuid.String()] = readChan
+		tl.Unlock()
+
+		tl.RLock()
+		topicCID = topicCIDMap[uuid.String()]
+		tl.RUnlock()
+	}
+
+	return (<-chan model.KafkaResponse)(topicCID), nil
 }
 
 // handleKafkaConsumerMsg handles the messages from ConsumerIO. It checks if any
-// corresponding CorrelationID exists for that response, and then passes the response to
-// the channel associated with that CorrelationID.
-// If no CorrelationID exists at time of message-arrival, the message is cached until a
+// corresponding UUID exists for that response, and then passes the response to
+// the channel associated with that UUID.
+// If no UUID exists at time of message-arrival, the message is cached until a
 // request is received, and the message is then sent as soon as the request is received.
-// Once the response is sent, the corresponding CorrelationID-entry is deleted from map.
+// Once the response is sent, the corresponding UUID-entry is deleted from map.
 func handleKafkaConsumerMsg(
 	msg *sarama.ConsumerMessage,
-	cidMap map[string]map[string]chan model.KafkaResponse,
-	cidMapLock *sync.RWMutex,
+	uuidMap map[string]map[string]chan model.KafkaResponse,
+	uuidMapLock *sync.RWMutex,
 	topicMapLock *sync.RWMutex,
 ) {
 	kr := model.KafkaResponse{}
@@ -128,42 +125,43 @@ func handleKafkaConsumerMsg(
 		log.Println(err)
 		return
 	}
-	krcid := kr.CorrelationID.String()
+	kruuid := kr.UUID.String()
 
-	cidMapLock.RLock()
-	topicCIDMap := cidMap[msg.Topic]
-	cidMapLock.RUnlock()
+	uuidMapLock.RLock()
+	topicCIDMap := uuidMap[msg.Topic]
+	uuidMapLock.RUnlock()
 
 	// Create topic-entry in CID map since it doesn't exist
 	if topicCIDMap == nil {
-		cidMapLock.Lock()
-		cidMap[msg.Topic] = make(map[string]chan model.KafkaResponse)
-		cidMapLock.Unlock()
+		uuidMapLock.Lock()
+		uuidMap[msg.Topic] = make(map[string]chan model.KafkaResponse)
+		uuidMapLock.Unlock()
 
-		cidMapLock.RLock()
-		topicCIDMap = cidMap[msg.Topic]
-		cidMapLock.RUnlock()
+		uuidMapLock.RLock()
+		topicCIDMap = uuidMap[msg.Topic]
+		uuidMapLock.RUnlock()
 	}
 
 	// Get the associated channel from TopicCIDMap
 	topicMapLock.RLock()
-	krReadChan, exists := topicCIDMap[krcid]
+	exists := topicCIDMap[kruuid] != nil
 	topicMapLock.RUnlock()
 
 	// Send the response to the channel from above and delete the entry from map
 	if exists {
 		topicMapLock.Lock()
-		delete(topicCIDMap, krcid)
 		topicMapLock.Unlock()
 
-		krReadChan <- kr
+		topicCIDMap[kruuid] <- kr
+		delete(topicCIDMap, kruuid)
 		return
 	}
 
-	// If no corresponding CorrelationID was found, we cache the response until a CID
+	// If no corresponding UUID was found, we cache the response until a CID
 	// requesting that response is available.
 	readChan := make(chan model.KafkaResponse, 1)
 	topicMapLock.Lock()
-	topicCIDMap[krcid] = readChan
+	topicCIDMap[kruuid] = readChan
 	topicMapLock.Unlock()
+	readChan <- kr
 }

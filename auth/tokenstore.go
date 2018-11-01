@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"github.com/TerrexTech/go-apigateway/model"
+	"github.com/TerrexTech/go-apigateway/gql/entity/auth/model"
 	"github.com/TerrexTech/uuuid"
 	"github.com/go-redis/redis"
 	"github.com/pkg/errors"
