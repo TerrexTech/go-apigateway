@@ -18,12 +18,12 @@
   version = "v3.1.0"
 
 [[projects]]
-  digest = "1:dee9ede39c2d6dd372cf8ac6df7e2051989c36a1d91565f7b40f4aef432979c5"
+  digest = "1:4d3876e2ce747cfeded59a1210056e894d2593b73e843454a19d7f845afad23e"
   name = "github.com/TerrexTech/go-eventstore-models"
   packages = ["model"]
   pruneopts = "UT"
-  revision = "309bc2e4adb405313be36883daf2b8a7ce09bba9"
-  version = "v3.0.0"
+  revision = "4d0913b6357bca72d45064058f63c02d20c9e2c0"
+  version = "v4.0.0"
 
 [[projects]]
   digest = "1:017b08c994a864ea4e94f1837037c14087f784a1e99d54173eba9050f7a81f74"
@@ -100,7 +100,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:64609c53991a461bd1ebd4d398cc930be8ba5d441d2a02b73f94c40a66ef93db"
+  digest = "1:348bbd07b4a983b2f811f81948c78142de09bb9fcf25284bee5e2ab3bdd0f6f9"
   name = "github.com/gocql/gocql"
   packages = [
     ".",
@@ -109,7 +109,7 @@
     "internal/streams",
   ]
   pruneopts = "UT"
-  revision = "a84ce58083d3d907fb0d94290d088a1fcd9cd858"
+  revision = "68ae1e384be4d7cd7df0f5b77f331759d806308e"
 
 [[projects]]
   digest = "1:c594a691090b434d55c67f6cc8e326ef5ba49452abc059821bd5d4fd4cdef08c"
@@ -164,12 +164,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:6c67d51fc76afd5d6c3e44b2d0d9d05f95acbf736d637fa574826eab1bd835f0"
+  digest = "1:958b0e4a23a59bcb8b77d13bc0d95c03cefe0cb67d86b662404c00d81ecacf54"
   name = "github.com/mongodb/mongo-go-driver"
   packages = ["bson/objectid"]
   pruneopts = "UT"
-  revision = "8db96a607cde2fea156d9a72c26aa09271592591"
-  version = "v0.0.17"
+  revision = "e9228a40a480a5403b7256fb755ab000ff754c35"
+  version = "v0.0.14"
 
 [[projects]]
   digest = "1:e39a5ee8fcbec487f8fc68863ef95f2b025e0739b0e4aa55558a2b4cf8f0ecf0"
@@ -200,19 +200,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  pruneopts = "UT"
-  revision = "c44066c5c816ec500d459a2a324a753f78531ae0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:39ebcc2b11457b703ae9ee2e8cca0f68df21969c6102cb3b705f76cca0ea0239"
+  digest = "1:b521f10a2d8fa85c04a8ef4e62f2d1e14d303599a55d64dabf9f5a02f84d35eb"
   name = "golang.org/x/sync"
   packages = ["errgroup"]
   pruneopts = "UT"
-  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+  revision = "42b317875d0fa942474b76e1b46a6060d720ae6e"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"

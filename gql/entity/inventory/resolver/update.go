@@ -42,7 +42,7 @@ var Update = func(params graphql.ResolveParams) (interface{}, error) {
 		err = errors.Wrap(err, "InventoryUpdateResolver: Error generating UUID for cid")
 		return nil, err
 	}
-	eventID, err := uuuid.NewV1()
+	eventID, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(err, "InventoryUpdateResolver: Error generating UUID for UpdateInventory-Event")
 		return nil, err
@@ -50,12 +50,12 @@ var Update = func(params graphql.ResolveParams) (interface{}, error) {
 
 	// Publish Update-Event on Kafka Topic
 	kf.EventProducer() <- &esmodel.Event{
-		Action:        "update",
+		EventAction:   "update",
 		CorrelationID: cid,
 		AggregateID:   2,
 		Data:          updateJSON,
-		Timestamp:     time.Now(),
-		TimeUUID:      eventID,
+		NanoTime:      time.Now().UnixNano(),
+		UUID:          eventID,
 		YearBucket:    2018,
 	}
 
@@ -63,7 +63,7 @@ var Update = func(params graphql.ResolveParams) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, cid)
+	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, eventID)
 	if err != nil {
 		err = errors.Wrap(err, "InventoryUpdateResolver: Error creating ConsumerIO for InventoryUpdateResolver")
 		return nil, err

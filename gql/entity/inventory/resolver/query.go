@@ -7,10 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/TerrexTech/go-apigateway/auth"
-	"github.com/TerrexTech/go-apigateway/gql/entity/auth/model"
 	"github.com/TerrexTech/go-apigateway/gql/response"
 	"github.com/TerrexTech/go-apigateway/gwerrors"
+
 	"github.com/TerrexTech/go-apigateway/util"
 	esmodel "github.com/TerrexTech/go-eventstore-models/model"
 	"github.com/TerrexTech/uuuid"
@@ -18,30 +17,28 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Login is the resolver for Login GraphQL-query.
-var Login = func(params graphql.ResolveParams) (interface{}, error) {
-	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_USERAUTH")
+// Query is the resolver for Inventory GraphQL-query.
+var Query = func(params graphql.ResolveParams) (interface{}, error) {
+	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_INVENTORY")
 
 	rootValue := params.Info.RootValue.(map[string]interface{})
 	kf := rootValue["kafkaFactory"].(*util.KafkaFactory)
-	ts := rootValue["tokenStore"].(auth.TokenStoreI)
 
-	// Marshal User-credentials
-	credentialsJSON, err := json.Marshal(params.Args)
+	paramsJSON, err := json.Marshal(params.Args)
 	if err != nil {
-		err = errors.Wrap(err, "AuthLoginResolver: Error marshalling credentials into JSON")
+		err = errors.Wrap(err, "InvQueryResolver: Error marshalling params into JSON")
 		return nil, err
 	}
 
 	// CorrelationID
 	cid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "AuthLoginResolver: Error generating UUID for cid")
+		err = errors.Wrap(err, "InvQueryResolver: Error generating UUID for cid")
 		return nil, err
 	}
 	uuid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "AuthLoginResolver: Error generating UUID for Login-Event")
+		err = errors.Wrap(err, "InvQueryResolver: Error generating UUID for Query-Event")
 		return nil, err
 	}
 
@@ -49,8 +46,8 @@ var Login = func(params graphql.ResolveParams) (interface{}, error) {
 	kf.EventProducer() <- &esmodel.Event{
 		EventAction:   "query",
 		CorrelationID: cid,
-		AggregateID:   1,
-		Data:          credentialsJSON,
+		AggregateID:   2,
+		Data:          paramsJSON,
 		NanoTime:      time.Now().UnixNano(),
 		UUID:          uuid,
 		YearBucket:    2018,
@@ -58,7 +55,7 @@ var Login = func(params graphql.ResolveParams) (interface{}, error) {
 
 	cio, err := kf.EnsureConsumerIO(consTopic, consTopic, false, uuid)
 	if err != nil {
-		err = errors.Wrap(err, "AuthLoginResolver: Error creating ConsumerIO")
+		err = errors.Wrap(err, "InvQueryResolver: Error creating ConsumerIO")
 		return nil, err
 	}
 	// Timeout Context
@@ -72,7 +69,7 @@ authResponseLoop:
 		case <-ctx.Done():
 			break authResponseLoop
 		case msg := <-cio:
-			authRes := handleLoginResponse(msg, ts)
+			authRes := handleInvQueryResponse(msg)
 			if authRes != nil {
 				if authRes.Err == nil {
 					return authRes.Result, nil
@@ -85,13 +82,10 @@ authResponseLoop:
 	return nil, errors.New("Timed out")
 }
 
-func handleLoginResponse(
-	kr esmodel.KafkaResponse,
-	ts auth.TokenStoreI,
-) *response.ResolverResponse {
+func handleInvQueryResponse(kr esmodel.KafkaResponse) *response.ResolverResponse {
 	if kr.Error != "" {
 		err := errors.New(kr.Error)
-		err = errors.Wrap(err, "AuthLoginResponseHandler: Error in KafkaResponse")
+		err = errors.Wrap(err, "InvQueryResponseHandler: Error in KafkaResponse")
 		krerr := gwerrors.NewKRError(err, kr.ErrorCode, err.Error())
 		return &response.ResolverResponse{
 			Result: nil,
@@ -99,12 +93,12 @@ func handleLoginResponse(
 		}
 	}
 
-	user := &model.User{}
-	err := json.Unmarshal(kr.Result, user)
+	result := []interface{}{}
+	err := json.Unmarshal(kr.Result, &result)
 	if err != nil {
 		err = errors.Wrap(
 			err,
-			"AuthLoginResponseHandler: Error while Unmarshalling user into KafkaResponse",
+			"InvQueryResponseHandler: Error while Unmarshalling inventory into KafkaResponse",
 		)
 		log.Println(err)
 		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
@@ -114,34 +108,28 @@ func handleLoginResponse(
 		}
 	}
 
-	at, err := genAccessToken(user)
-	if err != nil {
-		err = errors.Wrap(
-			err,
-			"AuthLoginResponseHandler: Error generating AccessToken",
-		)
-		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
-		return &response.ResolverResponse{
-			Result: nil,
-			Err:    krerr,
+	m := []map[string]interface{}{}
+	for i, r := range result {
+		item, assertOK := r.(map[string]interface{})
+		if !assertOK {
+			err = errors.New("error asserting item to map[string]interface{}")
+			err = errors.Wrapf(
+				err,
+				"InvQueryResponseHandler: Error asserting item at index: %d", i,
+			)
+			log.Println(err)
+			krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
+			return &response.ResolverResponse{
+				Result: nil,
+				Err:    krerr,
+			}
 		}
-	}
 
-	rt, err := genRefreshToken(ts, user)
-	if err != nil {
-		err = errors.Wrap(err, "AuthLoginResponseHandler: Error generating RefreshToken")
-		krerr := gwerrors.NewKRError(err, gwerrors.InternalError, err.Error())
-		return &response.ResolverResponse{
-			Result: nil,
-			Err:    krerr,
-		}
+		m = append(m, item)
 	}
 
 	return &response.ResolverResponse{
-		Result: &model.AuthTokens{
-			AccessToken:  at,
-			RefreshToken: rt,
-		},
-		Err: nil,
+		Result: m,
+		Err:    nil,
 	}
 }

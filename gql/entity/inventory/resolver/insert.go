@@ -24,7 +24,7 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	// Marshal Inventory-data
 	inventoryJSON, err := json.Marshal(params.Args)
 	if err != nil {
-		err = errors.Wrap(err, "InventoryInsertResolver: Error marshalling credentials into JSON")
+		err = errors.Wrap(err, "InvInsertResponseHandler: Error marshalling credentials into JSON")
 		return nil, err
 	}
 
@@ -34,23 +34,23 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	// CorrelationID
 	cid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "InventoryInsertResolver: Error generating UUID for cid")
+		err = errors.Wrap(err, "InvInsertResponseHandler: Error generating UUID for cid")
 		return nil, err
 	}
-	eventID, err := uuuid.NewV1()
+	eventID, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "InventoryInsertResolver: Error generating UUID for InsertInventory-Event")
+		err = errors.Wrap(err, "InvInsertResponseHandler: Error generating UUID for InsertInventory-Event")
 		return nil, err
 	}
 
 	// Publish Insert-Event on Kafka Topic
 	kf.EventProducer() <- &esmodel.Event{
-		Action:        "insert",
+		EventAction:   "insert",
 		CorrelationID: cid,
 		AggregateID:   2,
 		Data:          inventoryJSON,
-		Timestamp:     time.Now(),
-		TimeUUID:      eventID,
+		NanoTime:      time.Now().UnixNano(),
+		UUID:          eventID,
 		YearBucket:    2018,
 	}
 
@@ -58,9 +58,9 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, cid)
+	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, eventID)
 	if err != nil {
-		err = errors.Wrap(err, "InventoryInsertResolver: Error creating ConsumerIO")
+		err = errors.Wrap(err, "InvInsertResponseHandler: Error creating ConsumerIO")
 		return nil, err
 	}
 
@@ -74,7 +74,7 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 				return insertInvResp.Result, nil
 			}
 			insertInvErr := insertInvResp.Err
-			err = errors.Wrap(insertInvErr.Err, "InventoryInsertResolver: InsertInventory Error")
+			err = errors.Wrap(insertInvErr.Err, "InvInsertResponseHandler: InsertInventory Error")
 			log.Println(err)
 			outErr := fmt.Errorf("%d: InsertInventory Error", insertInvErr.Code)
 			return nil, outErr
@@ -87,7 +87,7 @@ func handleInsertInvResponse(kr esmodel.KafkaResponse) *response.ResolverRespons
 	if kr.Error != "" {
 		err := errors.Wrap(
 			errors.New(kr.Error),
-			"InventoryInsertResponseHandler: Error in KafkaResponse",
+			"InvInsertResponseHandler: Error in KafkaResponse",
 		)
 		log.Println(err)
 		krerr := gwerrors.NewKRError(err, kr.ErrorCode, err.Error())
@@ -102,7 +102,7 @@ func handleInsertInvResponse(kr esmodel.KafkaResponse) *response.ResolverRespons
 	if err != nil {
 		err = errors.Wrap(
 			err,
-			"InventoryInsertResponseHandler: "+
+			"InvInsertResponseHandler: "+
 				"Error while Unmarshalling KafkaResponse into inventory",
 		)
 		log.Println(err)

@@ -5,11 +5,11 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-// Mutations are GraphQL mutations for Inventory.
-var Mutations = map[string]*graphql.Field{
-	"InventoryInsert": &graphql.Field{
-		Type:        Inventory,
-		Description: "Inserts item into Inventory",
+// Queries are GraphQL queries for Inventory
+var Queries = map[string]*graphql.Field{
+	"InventoryQuery": &graphql.Field{
+		Type:        graphql.NewList(Inventory),
+		Description: "Inventory Query",
 		Args: graphql.FieldConfigArgument{
 			"itemID": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -18,10 +18,10 @@ var Mutations = map[string]*graphql.Field{
 				Type: graphql.String,
 			},
 			"dateArrived": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.Float,
 			},
 			"dateSold": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.Float,
 			},
 			"deviceID": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -30,7 +30,7 @@ var Mutations = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 			"expiryDate": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.Float,
 			},
 			"lot": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -57,61 +57,18 @@ var Mutations = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 			"timestamp": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.Float,
 			},
 			"totalWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
 			"upc": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.Float,
 			},
 			"wasteWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
 		},
-		Resolve: resolver.Insert,
-	},
-
-	"InventoryUpdate": &graphql.Field{
-		Type:        InventoryUpdateResult,
-		Description: "Update items from Inventory",
-		Args: graphql.FieldConfigArgument{
-			"filter": &graphql.ArgumentConfig{
-				Type: InventoryInput,
-			},
-			"update": &graphql.ArgumentConfig{
-				Type: InventoryInput,
-			},
-		},
-		Resolve: resolver.Update,
-	},
-
-	"InventoryDelete": &graphql.Field{
-		Type:        InventoryDeleteResult,
-		Description: "Delete items from Inventory",
-		Args: graphql.FieldConfigArgument{
-			"itemID": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"deviceID": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"lot": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"name": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"origin": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"sku": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"upc": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-		},
-		Resolve: resolver.Delete,
+		Resolve: resolver.Query,
 	},
 }

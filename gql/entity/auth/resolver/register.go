@@ -40,7 +40,7 @@ var Register = func(params graphql.ResolveParams) (interface{}, error) {
 		err = errors.Wrap(err, "AuthRegisterResolver: Error generating UUID for cid")
 		return nil, err
 	}
-	timeUUID, err := uuuid.NewV1()
+	uuid, err := uuuid.NewV4()
 	if err != nil {
 		err = errors.Wrap(err, "AuthRegisterResolver: Error generating UUID for Register-Event")
 		return nil, err
@@ -48,12 +48,12 @@ var Register = func(params graphql.ResolveParams) (interface{}, error) {
 
 	// Publish Auth-Request on Kafka Topic
 	kf.EventProducer() <- &esmodel.Event{
-		Action:        "insert",
+		EventAction:        "insert",
 		CorrelationID: cid,
 		AggregateID:   1,
 		Data:          credentialsJSON,
-		Timestamp:     time.Now(),
-		TimeUUID:      timeUUID,
+		NanoTime: time.Now().UnixNano(),
+		UUID:      uuid,
 		YearBucket:    2018,
 	}
 
@@ -61,7 +61,7 @@ var Register = func(params graphql.ResolveParams) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, timeUUID)
+	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, uuid)
 	if err != nil {
 		err = errors.Wrap(err, "AuthRegisterResolver: Error creating ConsumerIO")
 		return nil, err

@@ -15,6 +15,9 @@ var Inventory = graphql.NewObject(
 			"itemID": &graphql.Field{
 				Type: graphql.String,
 			},
+			"barcode": &graphql.Field{
+				Type: graphql.String,
+			},
 			"dateArrived": &graphql.Field{
 				Type: graphql.Float,
 			},
@@ -40,9 +43,6 @@ var Inventory = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"price": &graphql.Field{
-				Type: graphql.Float,
-			},
-			"quantity": &graphql.Field{
 				Type: graphql.Float,
 			},
 			"rsCustomerID": &graphql.Field{
@@ -82,6 +82,9 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"itemID": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"barcode": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"dateArrived": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
@@ -107,9 +110,6 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"price": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
-		},
-		"quantity": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
 		"rsCustomerID": &graphql.InputObjectFieldConfig{

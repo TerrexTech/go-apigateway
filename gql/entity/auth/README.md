@@ -7,11 +7,11 @@
   ```graphql
   mutation{
     authRegister(
-      userName:"testUserName",
-      password:"testPassword",
-      firstName:"testFirstName",
-      lastName:"testLastName",
-      email:"testEmail",
+      userName:"danpie3",
+      password:"danpie",
+      firstName:"obnoxious",
+      lastName:"potato",
+      email:"explosion",
       role:"employee"
     ){
       accessToken,
@@ -24,8 +24,8 @@
   ```graphql
   {
     authLogin(
-      userName:"testUserName",
-      password:"testPassword"
+      userName: "danpie",
+      password:"danpie"
     ){
       accessToken,
       refreshToken

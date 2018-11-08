@@ -82,8 +82,8 @@ func NewKafkaFactory(
 				msgJSON, err := json.Marshal(event)
 				if err != nil {
 					err = errors.Wrapf(err,
-						"Error Marshalling KafkaResponse with TimeUUID: %s and AggregateID: %d, ",
-						event.TimeUUID,
+						"Error Marshalling KafkaResponse with UUID: %s and AggregateID: %d, ",
+						event.UUID,
 						event.AggregateID,
 					)
 					log.Println(err)
