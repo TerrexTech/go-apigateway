@@ -7,14 +7,11 @@ import (
 
 // Queries are GraphQL queries for Inventory
 var Queries = map[string]*graphql.Field{
-	"InventoryQuery": &graphql.Field{
+	"InventoryQueryItem": &graphql.Field{
 		Type:        graphql.NewList(Inventory),
 		Description: "Inventory Query",
 		Args: graphql.FieldConfigArgument{
 			"itemID": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"barcode": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 			"dateArrived": &graphql.ArgumentConfig{
@@ -27,9 +24,6 @@ var Queries = map[string]*graphql.Field{
 				Type: graphql.String,
 			},
 			"donateWeight": &graphql.ArgumentConfig{
-				Type: graphql.Float,
-			},
-			"expiryDate": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
 			"lot": &graphql.ArgumentConfig{
@@ -63,12 +57,38 @@ var Queries = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 			"upc": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+				Type: graphql.String,
 			},
 			"wasteWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
 		},
-		Resolve: resolver.Query,
+		Resolve: resolver.QueryItem,
+	},
+	"InventoryQueryTimestamp": &graphql.Field{
+		Type:        graphql.NewList(Inventory),
+		Description: "Inventory Query by Timestamp",
+		Args: graphql.FieldConfigArgument{
+			"start": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"end": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"count": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: resolver.QueryTimestamp,
+	},
+	"InventoryQueryCount": &graphql.Field{
+		Type:        graphql.NewList(Inventory),
+		Description: "Returns latest inventory items as specified in count",
+		Args: graphql.FieldConfigArgument{
+			"count": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: resolver.QueryCount,
 	},
 }

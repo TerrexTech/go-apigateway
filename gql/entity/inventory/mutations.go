@@ -14,9 +14,6 @@ var Mutations = map[string]*graphql.Field{
 			"itemID": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"barcode": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
 			"dateArrived": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
@@ -28,9 +25,6 @@ var Mutations = map[string]*graphql.Field{
 			},
 			"donateWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
-			},
-			"expiryDate": &graphql.ArgumentConfig{
-				Type: graphql.Int,
 			},
 			"lot": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -63,7 +57,7 @@ var Mutations = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 			"upc": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.String,
 			},
 			"wasteWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
@@ -109,7 +103,7 @@ var Mutations = map[string]*graphql.Field{
 				Type: graphql.String,
 			},
 			"upc": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.String,
 			},
 		},
 		Resolve: resolver.Delete,

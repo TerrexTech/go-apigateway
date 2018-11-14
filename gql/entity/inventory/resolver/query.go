@@ -17,8 +17,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Query is the resolver for Inventory GraphQL-query.
-var Query = func(params graphql.ResolveParams) (interface{}, error) {
+// genericQuery is a generic-resolver for Inventory GraphQL-query.
+// Other queries call this function.
+var genericQuery = func(serviceAction string, params graphql.ResolveParams) (interface{}, error) {
 	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_INVENTORY")
 
 	rootValue := params.Info.RootValue.(map[string]interface{})
@@ -49,6 +50,7 @@ var Query = func(params graphql.ResolveParams) (interface{}, error) {
 		AggregateID:   2,
 		Data:          paramsJSON,
 		NanoTime:      time.Now().UnixNano(),
+		ServiceAction: serviceAction,
 		UUID:          uuid,
 		YearBucket:    2018,
 	}

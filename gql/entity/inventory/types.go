@@ -15,9 +15,6 @@ var Inventory = graphql.NewObject(
 			"itemID": &graphql.Field{
 				Type: graphql.String,
 			},
-			"barcode": &graphql.Field{
-				Type: graphql.String,
-			},
 			"dateArrived": &graphql.Field{
 				Type: graphql.Float,
 			},
@@ -28,9 +25,6 @@ var Inventory = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"donateWeight": &graphql.Field{
-				Type: graphql.Float,
-			},
-			"expiryDate": &graphql.Field{
 				Type: graphql.Float,
 			},
 			"lot": &graphql.Field{
@@ -64,7 +58,7 @@ var Inventory = graphql.NewObject(
 				Type: graphql.Float,
 			},
 			"upc": &graphql.Field{
-				Type: graphql.Float,
+				Type: graphql.String,
 			},
 			"wasteWeight": &graphql.Field{
 				Type: graphql.Float,
@@ -82,9 +76,6 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"itemID": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"barcode": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"dateArrived": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
@@ -95,9 +86,6 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"donateWeight": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
-		},
-		"expiryDate": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
 		"lot": &graphql.InputObjectFieldConfig{
@@ -131,7 +119,7 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Float,
 		},
 		"upc": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.String,
 		},
 		"wasteWeight": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
