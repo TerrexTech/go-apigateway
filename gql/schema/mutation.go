@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/TerrexTech/go-apigateway/gql/entity/auth"
+	"github.com/TerrexTech/go-apigateway/gql/entity/flashsale"
 	"github.com/TerrexTech/go-apigateway/gql/entity/inventory"
 	"github.com/TerrexTech/go-apigateway/gql/entity/sale"
 	"github.com/graphql-go/graphql"
@@ -14,5 +15,6 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		auth.Mutations,
 		inventory.Mutations,
 		sale.Mutations,
+		flashsale.Mutations,
 	),
 })
