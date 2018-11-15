@@ -10,12 +10,31 @@
   version = "v1.19.0"
 
 [[projects]]
+  digest = "1:6c181e0ff3861baeb5a5a6e07cb7adefccff4cfc91ccd8d9604b34ba34789f44"
+  name = "github.com/TerrexTech/agg-sale-cmd"
+  packages = ["sale"]
+  pruneopts = "UT"
+  revision = "a70487518dd8dc8ace0a5e1f6a8a73db0cd33ae0"
+  version = "v1.0.0-beta"
+
+[[projects]]
   digest = "1:9e040726ee775fa241bf96d3c11533a5312d9bcb00a594b63679bff456a4522c"
   name = "github.com/TerrexTech/go-commonutils"
   packages = ["commonutil"]
   pruneopts = "UT"
   revision = "3d09c974f936d001def7acafb178d99f317ee3a9"
   version = "v3.1.0"
+
+[[projects]]
+  digest = "1:b374152c0b4b0dff7c0236ed48d0fdee003e009876dbd7cb642d9b4a7f884f2b"
+  name = "github.com/TerrexTech/go-eventspoll"
+  packages = [
+    "errors",
+    "poll",
+  ]
+  pruneopts = "UT"
+  revision = "c2c40a442eab5325df33f65f6d7aacfee5bbf944"
+  version = "v4.0.0"
 
 [[projects]]
   digest = "1:4d3876e2ce747cfeded59a1210056e894d2593b73e843454a19d7f845afad23e"
@@ -34,12 +53,28 @@
   version = "v3.1.0"
 
 [[projects]]
+  digest = "1:55520c6e5ec20c17e93f852a3b0889b70844f5fa49c3471a9aa962c6697159eb"
+  name = "github.com/TerrexTech/go-mongoutils"
+  packages = ["mongo"]
+  pruneopts = "UT"
+  revision = "7475f824f61ceb3b0e9061695203ec2f13adef3d"
+  version = "v3.1.0"
+
+[[projects]]
   digest = "1:d60c04290d42fa9b1b2c8aa1856bf7d7bc77af402e7f9a7e2d1c00c5df906d7e"
   name = "github.com/TerrexTech/uuuid"
   packages = ["."]
   pruneopts = "UT"
   revision = "7e7a30e3b1c2fc538ac9a1553183a62f225d5a19"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:8500725e4a8fd006069df505505e0c370466b0952db1174235d7935e34e6df0b"
+  name = "github.com/buger/jsonparser"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "52c6e1462ebdfb4f59765ca13bd8fa1c31b1d7eb"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -97,6 +132,14 @@
   pruneopts = "UT"
   revision = "b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d"
   version = "v6.14.2"
+
+[[projects]]
+  digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
 
 [[projects]]
   branch = "master"
@@ -164,9 +207,61 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:958b0e4a23a59bcb8b77d13bc0d95c03cefe0cb67d86b662404c00d81ecacf54"
+  digest = "1:ca4fde30b33f3f8d39ddaa544308b4bdaac1c48f290d6d5148565ff0b03a7d80"
   name = "github.com/mongodb/mongo-go-driver"
-  packages = ["bson/objectid"]
+  packages = [
+    "bson",
+    "bson/builder",
+    "bson/decimal",
+    "bson/elements",
+    "bson/internal/llbson",
+    "bson/objectid",
+    "bson/parser",
+    "bson/parser/ast",
+    "core/address",
+    "core/auth",
+    "core/auth/internal/gssapi",
+    "core/command",
+    "core/compressor",
+    "core/connection",
+    "core/connstring",
+    "core/description",
+    "core/dispatch",
+    "core/event",
+    "core/option",
+    "core/readconcern",
+    "core/readpref",
+    "core/result",
+    "core/session",
+    "core/tag",
+    "core/topology",
+    "core/uuid",
+    "core/version",
+    "core/wiremessage",
+    "core/writeconcern",
+    "internal",
+    "mongo",
+    "mongo/aggregateopt",
+    "mongo/changestreamopt",
+    "mongo/clientopt",
+    "mongo/collectionopt",
+    "mongo/countopt",
+    "mongo/dbopt",
+    "mongo/deleteopt",
+    "mongo/distinctopt",
+    "mongo/dropcollopt",
+    "mongo/findopt",
+    "mongo/indexopt",
+    "mongo/insertopt",
+    "mongo/listcollectionopt",
+    "mongo/listdbopt",
+    "mongo/mongoopt",
+    "mongo/replaceopt",
+    "mongo/runcmdopt",
+    "mongo/sessionopt",
+    "mongo/transactionopt",
+    "mongo/updateopt",
+  ]
   pruneopts = "UT"
   revision = "e9228a40a480a5403b7256fb755ab000ff754c35"
   version = "v0.0.14"
@@ -200,11 +295,53 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b521f10a2d8fa85c04a8ef4e62f2d1e14d303599a55d64dabf9f5a02f84d35eb"
+  digest = "1:40fdfd6ab85ca32b6935853bbba35935dcb1d796c8135efd85947566c76e662e"
+  name = "github.com/xdg/scram"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7eeb5667e42c09cb51bf7b7c28aea8c56767da90"
+
+[[projects]]
+  digest = "1:577b99fc55ee19cbf1ffd072808c91ced78cd732bd9d0517bec9b90e532069cb"
+  name = "github.com/xdg/stringprep"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bd625b8dc1e3b0f57412280ccbcc317f0c69d8db"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2"]
+  pruneopts = "UT"
+  revision = "3d3f9f413869b949e48070b5bc593aa22cc2b8f2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d6b0cfc5ae30841c4b116ac589629f56f8add0955a39f11d8c0d06ca67f5b3d5"
   name = "golang.org/x/sync"
-  packages = ["errgroup"]
+  packages = [
+    "errgroup",
+    "semaphore",
+  ]
   pruneopts = "UT"
   revision = "42b317875d0fa942474b76e1b46a6060d720ae6e"
+
+[[projects]]
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm",
+  ]
+  pruneopts = "UT"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -219,15 +356,18 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Shopify/sarama",
+    "github.com/TerrexTech/agg-sale-cmd/sale",
     "github.com/TerrexTech/go-commonutils/commonutil",
+    "github.com/TerrexTech/go-eventspoll/poll",
     "github.com/TerrexTech/go-eventstore-models/model",
     "github.com/TerrexTech/go-kafkautils/kafka",
+    "github.com/TerrexTech/go-mongoutils/mongo",
     "github.com/TerrexTech/uuuid",
     "github.com/dgrijalva/jwt-go",
     "github.com/go-redis/redis",
     "github.com/graphql-go/graphql",
-    "github.com/graphql-go/graphql/language/ast",
     "github.com/joho/godotenv",
+    "github.com/mongodb/mongo-go-driver/bson",
     "github.com/mongodb/mongo-go-driver/bson/objectid",
     "github.com/pkg/errors",
     "golang.org/x/sync/errgroup",

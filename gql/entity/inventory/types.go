@@ -9,17 +9,14 @@ var Inventory = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Inventory",
 		Fields: graphql.Fields{
-			"_id": &graphql.Field{
-				Type: graphql.String,
-			},
 			"itemID": &graphql.Field{
 				Type: graphql.String,
 			},
 			"dateArrived": &graphql.Field{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"dateSold": &graphql.Field{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"deviceID": &graphql.Field{
 				Type: graphql.String,
@@ -42,8 +39,8 @@ var Inventory = graphql.NewObject(
 			"rsCustomerID": &graphql.Field{
 				Type: graphql.String,
 			},
-			"salePrice": &graphql.Field{
-				Type: graphql.Float,
+			"flashSaleWeight": &graphql.Field{
+				Type: graphql.Boolean,
 			},
 			"sku": &graphql.Field{
 				Type: graphql.String,
@@ -52,7 +49,7 @@ var Inventory = graphql.NewObject(
 				Type: graphql.Float,
 			},
 			"timestamp": &graphql.Field{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"totalWeight": &graphql.Field{
 				Type: graphql.Float,
@@ -63,24 +60,24 @@ var Inventory = graphql.NewObject(
 			"wasteWeight": &graphql.Field{
 				Type: graphql.Float,
 			},
-		},
+			"onFlashSale": &graphql.Field{
+				Type: graphql.Boolean,
+			},
+		}
 	},
 )
 
 var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "InventoryInput",
 	Fields: graphql.InputObjectConfigFieldMap{
-		"_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"itemID": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"dateArrived": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.Int,
 		},
 		"dateSold": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.Int,
 		},
 		"deviceID": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -103,8 +100,8 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"rsCustomerID": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"salePrice": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+		"flashSaleWeight": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
 		},
 		"sku": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -113,7 +110,7 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Float,
 		},
 		"timestamp": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.Int,
 		},
 		"totalWeight": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
@@ -123,6 +120,9 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"wasteWeight": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
+		},
+		"onFlashSale": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
 		},
 	},
 })

@@ -41,8 +41,8 @@ var Mutations = map[string]*graphql.Field{
 			"rsCustomerID": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"salePrice": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+			"flashSaleWeight": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
 			},
 			"sku": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -61,6 +61,9 @@ var Mutations = map[string]*graphql.Field{
 			},
 			"wasteWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
+			},
+			"onFlashSale": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
 			},
 		},
 		Resolve: resolver.Insert,

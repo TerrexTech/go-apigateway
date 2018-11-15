@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"github.com/pkg/errors"
 
 	"github.com/TerrexTech/go-apigateway/auth"
 	"github.com/TerrexTech/go-apigateway/gql/schema"
@@ -16,7 +17,6 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/graphql-go/graphql"
 	"github.com/joho/godotenv"
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -96,6 +96,12 @@ func initServices() {
 		log.Fatalln(err)
 	}
 
+
+	mongoColl, err := loadMongoConfig()
+	if err != nil {
+		err = errors.Wrap(err, "Unable to load mongocollection")
+		log.Fatalln(err)
+	}
 	// The GraphQL context
 	rootObject = map[string]interface{}{
 		"kafkaFactory": kafkaFactory,
@@ -103,6 +109,7 @@ func initServices() {
 		"appContext":   ctx,
 		"errGroup":     g,
 		"closeChan":    (chan<- struct{})(closeChan),
+		"inventoryColl": mongoColl,
 	}
 
 	Schema, err = graphql.NewSchema(graphql.SchemaConfig{

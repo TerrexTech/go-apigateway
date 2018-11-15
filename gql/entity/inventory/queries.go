@@ -15,10 +15,10 @@ var Queries = map[string]*graphql.Field{
 				Type: graphql.String,
 			},
 			"dateArrived": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"dateSold": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"deviceID": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -41,8 +41,8 @@ var Queries = map[string]*graphql.Field{
 			"rsCustomerID": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"salePrice": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+			"flashSaleWeight": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
 			},
 			"sku": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -51,7 +51,7 @@ var Queries = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 			"timestamp": &graphql.ArgumentConfig{
-				Type: graphql.Float,
+				Type: graphql.Int,
 			},
 			"totalWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
@@ -61,6 +61,9 @@ var Queries = map[string]*graphql.Field{
 			},
 			"wasteWeight": &graphql.ArgumentConfig{
 				Type: graphql.Float,
+			},
+			"onFlashSale": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
 			},
 		},
 		Resolve: resolver.QueryItem,
