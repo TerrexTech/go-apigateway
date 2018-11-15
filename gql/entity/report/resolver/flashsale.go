@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var Donate = func(params graphql.ResolveParams) (interface{}, error) {
+var FlashSale = func(params graphql.ResolveParams) (interface{}, error) {
 	rootValue := params.Info.RootValue.(map[string]interface{})
 	coll := rootValue["inventoryColl"].(*mongo.Collection)
 
@@ -45,8 +45,8 @@ var Donate = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_donate": {
-				"$avg": "$donateWeight",
+			"avg_sold": {
+				"$avg": "$flashSaleWeight",
 			},
 			"avg_total": {
 				"$avg": "$totalWeight",

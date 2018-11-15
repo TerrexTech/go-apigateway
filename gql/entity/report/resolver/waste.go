@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var Donate = func(params graphql.ResolveParams) (interface{}, error) {
+var Waste = func(params graphql.ResolveParams) (interface{}, error) {
 	rootValue := params.Info.RootValue.(map[string]interface{})
 	coll := rootValue["inventoryColl"].(*mongo.Collection)
 
@@ -45,8 +45,8 @@ var Donate = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_donate": {
-				"$avg": "$donateWeight",
+			"avg_waste": {
+				"$avg": "$wasteWeight",
 			},
 			"avg_total": {
 				"$avg": "$totalWeight",
@@ -54,7 +54,6 @@ var Donate = func(params graphql.ResolveParams) (interface{}, error) {
 		}
 		}
 	]`, input)
-
 	pipelineAgg, err := bson.ParseExtJSONArray(pipelineBuilder)
 	if err != nil {
 		err = errors.Wrap(err, "Query: Error in generating pipeline for report")
