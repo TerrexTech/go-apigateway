@@ -125,6 +125,7 @@ func handleKafkaConsumerMsg(
 		log.Println(err)
 		return
 	}
+	log.Printf("%+v", kr)
 	kruuid := kr.UUID.String()
 
 	uuidMapLock.RLock()

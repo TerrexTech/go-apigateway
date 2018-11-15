@@ -12,5 +12,6 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Fields: createFields(
 		auth.Queries,
 		inventory.Queries,
+		// sale.Queries,
 	),
 })

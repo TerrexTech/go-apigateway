@@ -61,6 +61,7 @@ func (r *responseConsumer) ConsumeClaim(
 			close(r.msgChan)
 			return errors.New("service-context closed")
 		case msg := <-claim.Messages():
+			log.Println(string(msg.Value))
 			r.msgChan <- msg
 		}
 	}

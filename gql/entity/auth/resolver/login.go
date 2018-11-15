@@ -56,6 +56,16 @@ var Login = func(params graphql.ResolveParams) (interface{}, error) {
 		YearBucket:    2018,
 	}
 
+	log.Println("%+v", &esmodel.Event{
+		EventAction:   "query",
+		CorrelationID: cid,
+		AggregateID:   1,
+		Data:          credentialsJSON,
+		NanoTime:      time.Now().UnixNano(),
+		UUID:          uuid,
+		YearBucket:    2018,
+	})
+
 	cio, err := kf.EnsureConsumerIO(consTopic, consTopic, false, uuid)
 	if err != nil {
 		err = errors.Wrap(err, "AuthLoginResolver: Error creating ConsumerIO")
