@@ -63,7 +63,7 @@ var Inventory = graphql.NewObject(
 			"onFlashSale": &graphql.Field{
 				Type: graphql.Boolean,
 			},
-		}
+		},
 	},
 )
 
