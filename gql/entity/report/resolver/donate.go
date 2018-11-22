@@ -45,15 +45,17 @@ var Donate = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_donate": {
+			"avgDonate": {
 				"$avg": "$donateWeight",
 			},
-			"avg_total": {
+			"avgTotal": {
 				"$avg": "$totalWeight",
 			}
 		}
 		}
 	]`, input)
+
+	log.Println(pipelineBuilder)
 
 	pipelineAgg, err := bson.ParseExtJSONArray(pipelineBuilder)
 	if err != nil {

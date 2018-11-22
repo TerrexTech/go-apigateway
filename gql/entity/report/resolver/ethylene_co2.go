@@ -13,7 +13,7 @@ import (
 
 var EthyleneCO2 = func(params graphql.ResolveParams) (interface{}, error) {
 	rootValue := params.Info.RootValue.(map[string]interface{})
-	coll := rootValue["inventoryColl"].(*mongo.Collection)
+	coll := rootValue["metricColl"].(*mongo.Collection)
 
 	if params.Args["$lt"] == 0 || params.Args["$gt"] == 0 {
 		err := errors.New("Missing timestamp value")
@@ -45,17 +45,17 @@ var EthyleneCO2 = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_waste": {
-				"$avg": "$wasteWeight",
+			"avgEthylene": {
+				"$avg": "$ethylene",
 			},
-			"avg_donate": {
-				"$avg": "$donateWeight",
+			"avgCarbonDioxide": {
+				"$avg": "$carbonDioxide",
 			},
-			"avg_sold": {
-				"$avg": "$soldWeight",
+			"avgTempIn": {
+				"$avg": "$tempIn",
 			},
-			"avg_total": {
-				"$avg": "$totalWeight",
+			"avgHumidity": {
+				"$avg": "$humidity",
 			}
 		}
 		}

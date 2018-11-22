@@ -10,31 +10,12 @@
   version = "v1.19.0"
 
 [[projects]]
-  digest = "1:6c181e0ff3861baeb5a5a6e07cb7adefccff4cfc91ccd8d9604b34ba34789f44"
-  name = "github.com/TerrexTech/agg-sale-cmd"
-  packages = ["sale"]
-  pruneopts = "UT"
-  revision = "a70487518dd8dc8ace0a5e1f6a8a73db0cd33ae0"
-  version = "v1.0.0-beta"
-
-[[projects]]
   digest = "1:9e040726ee775fa241bf96d3c11533a5312d9bcb00a594b63679bff456a4522c"
   name = "github.com/TerrexTech/go-commonutils"
   packages = ["commonutil"]
   pruneopts = "UT"
   revision = "3d09c974f936d001def7acafb178d99f317ee3a9"
   version = "v3.1.0"
-
-[[projects]]
-  digest = "1:b374152c0b4b0dff7c0236ed48d0fdee003e009876dbd7cb642d9b4a7f884f2b"
-  name = "github.com/TerrexTech/go-eventspoll"
-  packages = [
-    "errors",
-    "poll",
-  ]
-  pruneopts = "UT"
-  revision = "c2c40a442eab5325df33f65f6d7aacfee5bbf944"
-  version = "v4.0.0"
 
 [[projects]]
   digest = "1:4d3876e2ce747cfeded59a1210056e894d2593b73e843454a19d7f845afad23e"
@@ -199,6 +180,20 @@
   revision = "e80d13ce29ede4452c43dea11e79b9bc8a15b478"
 
 [[projects]]
+  digest = "1:a1038ef593beb4771c8f0f9c26e8b00410acd800af5c6864651d9bf160ea1813"
+  name = "github.com/hpcloud/tail"
+  packages = [
+    ".",
+    "ratelimiter",
+    "util",
+    "watch",
+    "winfile",
+  ]
+  pruneopts = "UT"
+  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
   name = "github.com/joho/godotenv"
   packages = ["."]
@@ -267,6 +262,54 @@
   version = "v0.0.14"
 
 [[projects]]
+  digest = "1:42e29deef12327a69123b9cb2cb45fee4af5c12c2a23c6e477338279a052703f"
+  name = "github.com/onsi/ginkgo"
+  packages = [
+    ".",
+    "config",
+    "internal/codelocation",
+    "internal/containernode",
+    "internal/failer",
+    "internal/leafnodes",
+    "internal/remote",
+    "internal/spec",
+    "internal/spec_iterator",
+    "internal/specrunner",
+    "internal/suite",
+    "internal/testingtproxy",
+    "internal/writer",
+    "reporters",
+    "reporters/stenographer",
+    "reporters/stenographer/support/go-colorable",
+    "reporters/stenographer/support/go-isatty",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "3774a09d95489ccaa16032e0770d08ea77ba6184"
+  version = "v1.6.0"
+
+[[projects]]
+  digest = "1:ab54eea8d482272009e9e4af07d4d9b5236c27b4d8c54a3f2c99d163be883eca"
+  name = "github.com/onsi/gomega"
+  packages = [
+    ".",
+    "format",
+    "internal/assertion",
+    "internal/asyncassertion",
+    "internal/oraclematcher",
+    "internal/testingtsupport",
+    "matchers",
+    "matchers/support/goraph/bipartitegraph",
+    "matchers/support/goraph/edge",
+    "matchers/support/goraph/node",
+    "matchers/support/goraph/util",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "7615b9433f86a8bdf29709bf288bc4fd0636a369"
+  version = "v1.4.2"
+
+[[projects]]
   digest = "1:e39a5ee8fcbec487f8fc68863ef95f2b025e0739b0e4aa55558a2b4cf8f0ecf0"
   name = "github.com/pierrec/lz4"
   packages = [
@@ -319,6 +362,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5193d913046443e59093d66a97a40c51f4a5ea4ceba60f3b3ecf89694de5d16f"
+  name = "golang.org/x/net"
+  packages = [
+    "html",
+    "html/atom",
+    "html/charset",
+  ]
+  pruneopts = "UT"
+  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+
+[[projects]]
+  branch = "master"
   digest = "1:d6b0cfc5ae30841c4b116ac589629f56f8add0955a39f11d8c0d06ca67f5b3d5"
   name = "golang.org/x/sync"
   packages = [
@@ -329,12 +384,34 @@
   revision = "42b317875d0fa942474b76e1b46a6060d720ae6e"
 
 [[projects]]
-  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  branch = "master"
+  digest = "1:225564f71149334315118db714e1ea87513e4a11cf4acb27e26bc7577cebfa0b"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "0cf1ed9e522b7dbb416f080a5c8003de9b702bf4"
+
+[[projects]]
+  digest = "1:4392fcf42d5cf0e3ff78c96b2acf8223d49e4fdc53eb77c99d2f8dfe4680e006"
   name = "golang.org/x/text"
   packages = [
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
     "internal/gen",
+    "internal/tag",
     "internal/triegen",
     "internal/ucd",
+    "internal/utf8internal",
+    "language",
+    "runes",
     "transform",
     "unicode/cldr",
     "unicode/norm",
@@ -344,6 +421,15 @@
   version = "v0.3.0"
 
 [[projects]]
+  digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
+  name = "gopkg.in/fsnotify.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  source = "https://github.com/fsnotify/fsnotify/archive/v1.4.7.tar.gz"
+  version = "v1.4.7"
+
+[[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
   name = "gopkg.in/inf.v0"
   packages = ["."]
@@ -351,14 +437,28 @@
   revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
   version = "v0.9.1"
 
+[[projects]]
+  branch = "v1"
+  digest = "1:0caa92e17bc0b65a98c63e5bc76a9e844cd5e56493f8fdbb28fad101a16254d9"
+  name = "gopkg.in/tomb.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dd632973f1e7218eb1089048e0798ec9ae7dceb8"
+
+[[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/Shopify/sarama",
-    "github.com/TerrexTech/agg-sale-cmd/sale",
     "github.com/TerrexTech/go-commonutils/commonutil",
-    "github.com/TerrexTech/go-eventspoll/poll",
     "github.com/TerrexTech/go-eventstore-models/model",
     "github.com/TerrexTech/go-kafkautils/kafka",
     "github.com/TerrexTech/go-mongoutils/mongo",
@@ -369,6 +469,8 @@
     "github.com/joho/godotenv",
     "github.com/mongodb/mongo-go-driver/bson",
     "github.com/mongodb/mongo-go-driver/bson/objectid",
+    "github.com/onsi/ginkgo",
+    "github.com/onsi/gomega",
     "github.com/pkg/errors",
     "golang.org/x/sync/errgroup",
   ]
