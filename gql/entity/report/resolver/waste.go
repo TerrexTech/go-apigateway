@@ -45,10 +45,10 @@ var Waste = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_waste": {
+			"avgWaste": {
 				"$avg": "$wasteWeight",
 			},
-			"avg_total": {
+			"avgTotal": {
 				"$avg": "$totalWeight",
 			}
 		}
