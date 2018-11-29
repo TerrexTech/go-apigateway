@@ -35,8 +35,35 @@ var Queries = map[string]*graphql.Field{
 		Resolve: resolver.Waste,
 	},
 
+	"FlashSale": &graphql.Field{
+		Type:        graphql.NewList(FlashSaleAvgTotal),
+		Description: "FlashSale",
+		Args: graphql.FieldConfigArgument{
+			"lt": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+			"gt": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+		},
+		Resolve: resolver.FlashSale,
+	},
+	"ItemSold": &graphql.Field{
+		Type:        graphql.NewList(ItemSoldAvgTotal),
+		Description: "ItemSold",
+		Args: graphql.FieldConfigArgument{
+			"lt": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+			"gt": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+		},
+		Resolve: resolver.ItemSold,
+	},
+
 	"Savings": &graphql.Field{
-		Type:        graphql.NewList(SoldAvgTotal),
+		Type:        graphql.NewList(SavingAvgTotal),
 		Description: "Savings",
 		Args: graphql.FieldConfigArgument{
 			"lt": &graphql.ArgumentConfig{
@@ -50,7 +77,7 @@ var Queries = map[string]*graphql.Field{
 	},
 
 	"Revenue": &graphql.Field{
-		Type:        graphql.NewList(SoldAvgTotal),
+		Type:        graphql.NewList(RevenueAvgTotal),
 		Description: "Revenue",
 		Args: graphql.FieldConfigArgument{
 			"lt": &graphql.ArgumentConfig{
@@ -63,9 +90,9 @@ var Queries = map[string]*graphql.Field{
 		Resolve: resolver.Revenue,
 	},
 
-	"FlashSale": &graphql.Field{
-		Type:        graphql.NewList(FlashSale),
-		Description: "FlashSale",
+	"EthyleneCO2": &graphql.Field{
+		Type:        graphql.NewList(EthyleneAvgTotal),
+		Description: "EthyleneCo2",
 		Args: graphql.FieldConfigArgument{
 			"lt": &graphql.ArgumentConfig{
 				Type: graphql.Float,
@@ -74,35 +101,21 @@ var Queries = map[string]*graphql.Field{
 				Type: graphql.Float,
 			},
 		},
-		Resolve: resolver.Revenue,
+		Resolve: resolver.EthyleneCO2,
 	},
 }
 
-var FlashSale = graphql.NewObject(
+var DonateAvgTotal = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "FlashSaleType",
+		Name: "DonateAvgTotal",
 		Fields: graphql.Fields{
+			"avgTotal": &graphql.Field{
+				Type: graphql.Float,
+			},
 			"_id": &graphql.Field{
 				Type: DonateID,
 			},
-			"avg_sold": &graphql.Field{
-				Type: graphql.Float,
-			},
-			"avg_total": &graphql.Field{
-				Type: graphql.Float,
-			},
-		},
-	},
-)
-
-var SoldAvgTotal = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "SoldAvgTotal",
-		Fields: graphql.Fields{
-			"_id": &graphql.Field{
-				Type: DonateID,
-			},
-			"avg_sold": &graphql.Field{
+			"avgDonate": &graphql.Field{
 				Type: graphql.Float,
 			},
 		},
@@ -113,30 +126,131 @@ var WasteAvgTotal = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "WasteAvgTotal",
 		Fields: graphql.Fields{
-			"avg_total": &graphql.Field{
+			"avgTotal": &graphql.Field{
 				Type: graphql.Float,
 			},
 			"_id": &graphql.Field{
 				Type: DonateID,
 			},
-			"avg_waste": &graphql.Field{
+			"avgWaste": &graphql.Field{
 				Type: graphql.Float,
 			},
 		},
 	},
 )
 
-var DonateAvgTotal = graphql.NewObject(
+var FlashSaleAvgTotal = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "DonateAvgTotal",
+		Name: "FlashSaleType",
 		Fields: graphql.Fields{
-			"avg_total": &graphql.Field{
-				Type: graphql.Float,
-			},
 			"_id": &graphql.Field{
 				Type: DonateID,
 			},
-			"avg_donate": &graphql.Field{
+			"avgFlashSold": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgSold": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgTotal": &graphql.Field{
+				Type: graphql.Float,
+			},
+		},
+	},
+)
+
+var ItemSoldAvgTotal = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "ItemSoldType",
+		Fields: graphql.Fields{
+			"_id": &graphql.Field{
+				Type: DonateID,
+			},
+			"avgSold": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgTotal": &graphql.Field{
+				Type: graphql.Float,
+			},
+		},
+	},
+)
+
+var SavingAvgTotal = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "SavingsAvgTotal",
+		Fields: graphql.Fields{
+			"sku": &graphql.Field{
+				Type: graphql.String,
+			},
+			"name": &graphql.Field{
+				Type: graphql.String,
+			},
+			"wasteWeight": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"prevWasteWeight": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"amWastePrev": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"amWasteCurr": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"savingsPercent": &graphql.Field{
+				Type: graphql.Float,
+			},
+		},
+	},
+)
+
+var RevenueAvgTotal = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "RevenueAvgTotal",
+		Fields: graphql.Fields{
+			"sku": &graphql.Field{
+				Type: graphql.String,
+			},
+			"name": &graphql.Field{
+				Type: graphql.String,
+			},
+			"prevSoldWeight": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"soldWeight": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"revenuePrev": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"revenueCurr": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"revenuePercent": &graphql.Field{
+				Type: graphql.Float,
+			},
+		},
+	},
+)
+
+var EthyleneAvgTotal = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "EthyleneAvgTotal",
+		Fields: graphql.Fields{
+			"_id": &graphql.Field{
+				Type: EthyleneID,
+			},
+			"avgEthylene": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgCarbonDioxide": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgTempIn": &graphql.Field{
+				Type: graphql.Float,
+			},
+			"avgHumidity": &graphql.Field{
 				Type: graphql.Float,
 			},
 		},
@@ -146,6 +260,20 @@ var DonateAvgTotal = graphql.NewObject(
 var DonateID = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "DonateID",
+		Fields: graphql.Fields{
+			"name": &graphql.Field{
+				Type: graphql.String,
+			},
+			"sku": &graphql.Field{
+				Type: graphql.String,
+			},
+		},
+	},
+)
+
+var EthyleneID = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "EthyleneID",
 		Fields: graphql.Fields{
 			"name": &graphql.Field{
 				Type: graphql.String,

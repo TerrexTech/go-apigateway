@@ -195,7 +195,8 @@
   {
     InventoryQueryTimestamp(
       start: 1542219382824,
-      end: 1542219334742
+      end: 1542219334742,
+      count: 10,
     ){
       _id,
       itemID,

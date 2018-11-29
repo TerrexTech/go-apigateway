@@ -37,4 +37,15 @@ var Queries = map[string]*graphql.Field{
 		},
 		Resolve: resolver.AccessToken,
 	},
+
+	"AuthQueryCount": &graphql.Field{
+		Type:        graphql.NewList(User),
+		Description: "Returns latest User items as specified in count",
+		Args: graphql.FieldConfigArgument{
+			"count": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: resolver.QueryCount,
+	},
 }

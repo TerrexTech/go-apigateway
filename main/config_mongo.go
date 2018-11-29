@@ -16,7 +16,7 @@ func loadMongoConfig() (*mongo.Collection, error) {
 	)
 
 	database := os.Getenv("MONGO_DATABASE")
-	aggCollection := os.Getenv("MONGO_AGG_COLLECTION")
+	aggCollection := os.Getenv("MONGO_INV_COLLECTION")
 	username := os.Getenv("MONGO_USERNAME")
 	password := os.Getenv("MONGO_PASSWORD")
 	connTimeoutStr := os.Getenv("MONGO_CONNECTION_TIMEOUT_MS")
@@ -78,7 +78,18 @@ func createMongoCollection(
 			IsUnique: true,
 			Name:     "itemID_index",
 		},
+		mongo.IndexConfig{
+			ColumnConfig: []mongo.IndexColumnConfig{
+				mongo.IndexColumnConfig{
+					Name:        "soldWeight",
+					IsDescOrder: true,
+				},
+			},
+			Name: "soldWeight_Index",
+		},
 	}
+
+	log.Println(db)
 
 	// Create New Collection
 	c := &mongo.Collection{
@@ -94,4 +105,57 @@ func createMongoCollection(
 		return nil, err
 	}
 	return collection, nil
+}
+
+// createClient creates a MongoDB-Client.
+func CreateClient(host []string, username string, password string) (*mongo.Client, error) {
+	// Would ideally set these config-params as environment vars
+	config := mongo.ClientConfig{
+		Hosts:               host,
+		Username:            username,
+		Password:            password,
+		TimeoutMilliseconds: 3000,
+	}
+
+	// ====> MongoDB Client
+	client, err := mongo.NewClient(config)
+	// Let the parent functions handle error, always -.-
+	// (Even though in these examples, we won't, for simplicity)
+	return client, err
+}
+
+// createCollection demonstrates creating the collection and the associated database.
+func CreateCollection(client *mongo.Client,
+	collName string,
+	schema interface{},
+	columnIndexName string,
+	columnConfigName string) (*mongo.Collection, error) {
+	// ====> Collection Configuration
+	conn := &mongo.ConnectionConfig{
+		Client:  client,
+		Timeout: 5000,
+	}
+	// Index Configuration
+	indexConfigs := []mongo.IndexConfig{
+		mongo.IndexConfig{
+			ColumnConfig: []mongo.IndexColumnConfig{
+				mongo.IndexColumnConfig{
+					Name: "itemID",
+				},
+				mongo.IndexColumnConfig{
+					Name: columnIndexName,
+				},
+			},
+			Name: columnConfigName,
+		},
+	}
+	// ====> Create New Collection
+	c := &mongo.Collection{
+		Connection:   conn,
+		Name:         collName,
+		Database:     "rns_projections",
+		SchemaStruct: schema,
+		Indexes:      indexConfigs,
+	}
+	return mongo.EnsureCollection(c)
 }

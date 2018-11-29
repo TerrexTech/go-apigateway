@@ -45,10 +45,13 @@ var FlashSale = func(params graphql.ResolveParams) (interface{}, error) {
 		{
 			"$group" : {
 			"_id" : {"sku" : "$sku","name":"$name"},
-			"avg_sold": {
+			"avgFlashSold": {
 				"$avg": "$flashSaleWeight",
 			},
-			"avg_total": {
+			"avgSold": {
+				"$avg": "$soldWeight",
+			},
+			"avgTotal": {
 				"$avg": "$totalWeight",
 			}
 		}

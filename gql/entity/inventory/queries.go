@@ -65,6 +65,9 @@ var Queries = map[string]*graphql.Field{
 			"onFlashSale": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
 			},
+			"projectedDate": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: resolver.QueryItem,
 	},
@@ -93,5 +96,21 @@ var Queries = map[string]*graphql.Field{
 			},
 		},
 		Resolve: resolver.QueryCount,
+	},
+	"InventoryQueryFlashOrSale": &graphql.Field{
+		Type:        graphql.NewList(Inventory),
+		Description: "Inventory Query by FlashOrSale",
+		Args: graphql.FieldConfigArgument{
+			"field": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"weight": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+			"count": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: resolver.QueryItem,
 	},
 }

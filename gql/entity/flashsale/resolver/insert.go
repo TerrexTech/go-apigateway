@@ -21,13 +21,12 @@ import (
 var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	consTopic := os.Getenv("KAFKA_CONSUMER_TOPIC_FLASHSALE")
 
-	// Marshal Sale-data
-	saleJSON, err := json.Marshal(params.Args)
+	// Marshal Inventory-data
+	flashsaleJSON, err := json.Marshal(params.Args)
 	if err != nil {
-		err = errors.Wrap(err, "InvInsertResponseHandler: Error marshalling credentials into JSON")
+		err = errors.Wrap(err, "FlashsaleInsertResponseHandler: Error marshalling credentials into JSON")
 		return nil, err
 	}
-	log.Println(string(saleJSON))
 
 	rootValue := params.Info.RootValue.(map[string]interface{})
 	kf := rootValue["kafkaFactory"].(*util.KafkaFactory)
@@ -35,12 +34,12 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	// CorrelationID
 	cid, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "InvInsertResponseHandler: Error generating UUID for cid")
+		err = errors.Wrap(err, "FlashsaleInsertResponseHandler: Error generating UUID for cid")
 		return nil, err
 	}
 	eventID, err := uuuid.NewV4()
 	if err != nil {
-		err = errors.Wrap(err, "InvInsertResponseHandler: Error generating UUID for InsertSale-Event")
+		err = errors.Wrap(err, "FlashsaleInsertResponseHandler: Error generating UUID for InsertInventory-Event")
 		return nil, err
 	}
 
@@ -49,7 +48,7 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 		EventAction:   "insert",
 		CorrelationID: cid,
 		AggregateID:   7,
-		Data:          saleJSON,
+		Data:          flashsaleJSON,
 		NanoTime:      time.Now().UnixNano(),
 		UUID:          eventID,
 		YearBucket:    2018,
@@ -61,7 +60,7 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 
 	krChan, err := kf.EnsureConsumerIO(consTopic, consTopic, false, eventID)
 	if err != nil {
-		err = errors.Wrap(err, "InvInsertResponseHandler: Error creating ConsumerIO")
+		err = errors.Wrap(err, "FlashsaleInsertResponseHandler: Error creating ConsumerIO")
 		return nil, err
 	}
 
@@ -69,26 +68,26 @@ var Insert = func(params graphql.ResolveParams) (interface{}, error) {
 	case <-ctx.Done():
 		return nil, errors.New("Timed out")
 	case kr := <-krChan:
-		insertInvResp := handleInsertInvResponse(kr)
-		if insertInvResp != nil {
-			if insertInvResp.Err == nil {
-				return insertInvResp.Result, nil
+		insertFlashResp := handleInsertFlashResponse(kr)
+		if insertFlashResp != nil {
+			if insertFlashResp.Err == nil {
+				return insertFlashResp.Result, nil
 			}
-			insertInvErr := insertInvResp.Err
-			err = errors.Wrap(insertInvErr.Err, "InvInsertResponseHandler: InsertSale Error")
+			insertFlashErr := insertFlashResp.Err
+			err = errors.Wrap(insertFlashErr.Err, "FlashsaleInsertResponseHandler: InsertFlashsale Error")
 			log.Println(err)
-			outErr := fmt.Errorf("%d: InsertSale Error", insertInvErr.Code)
+			outErr := fmt.Errorf("%d: InsertFlashsale Error", insertFlashErr.Code)
 			return nil, outErr
 		}
 	}
 	return nil, errors.New("Unknown Error")
 }
 
-func handleInsertInvResponse(kr esmodel.KafkaResponse) *response.ResolverResponse {
+func handleInsertFlashResponse(kr esmodel.KafkaResponse) *response.ResolverResponse {
 	if kr.Error != "" {
 		err := errors.Wrap(
 			errors.New(kr.Error),
-			"InvInsertResponseHandler: Error in KafkaResponse",
+			"FlashsaleInsertResponseHandler: Error in KafkaResponse",
 		)
 		log.Println(err)
 		krerr := gwerrors.NewKRError(err, kr.ErrorCode, err.Error())
@@ -98,12 +97,12 @@ func handleInsertInvResponse(kr esmodel.KafkaResponse) *response.ResolverRespons
 		}
 	}
 
-	sale := map[string]interface{}{}
-	err := json.Unmarshal(kr.Result, &sale)
+	flashsale := map[string]interface{}{}
+	err := json.Unmarshal(kr.Result, &flashsale)
 	if err != nil {
 		err = errors.Wrap(
 			err,
-			"InvInsertResponseHandler: "+
+			"FlashsaleInsertResponseHandler: "+
 				"Error while Unmarshalling KafkaResponse into flashsale",
 		)
 		log.Println(err)
@@ -115,7 +114,7 @@ func handleInsertInvResponse(kr esmodel.KafkaResponse) *response.ResolverRespons
 	}
 
 	return &response.ResolverResponse{
-		Result: sale,
+		Result: flashsale,
 		Err:    nil,
 	}
 }
