@@ -63,6 +63,9 @@ var Inventory = graphql.NewObject(
 			"onFlashSale": &graphql.Field{
 				Type: graphql.Boolean,
 			},
+			"projectedDate": &graphql.Field{
+				Type: graphql.Int,
+			},
 		},
 	},
 )
@@ -123,6 +126,9 @@ var InventoryInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"onFlashSale": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
+		},
+		"projectedDate": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })

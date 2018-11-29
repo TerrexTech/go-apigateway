@@ -65,6 +65,9 @@ var Mutations = map[string]*graphql.Field{
 			"onFlashSale": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
 			},
+			"projectedDate": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: resolver.Insert,
 	},

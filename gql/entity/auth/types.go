@@ -34,6 +34,12 @@ var User = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "User",
 		Fields: graphql.Fields{
+			"firstName": &graphql.Field{
+				Type: graphql.String,
+			},
+			"lastName": &graphql.Field{
+				Type: graphql.String,
+			},
 			"email": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -41,6 +47,9 @@ var User = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"password": &graphql.Field{
+				Type: graphql.String,
+			},
+			"role": &graphql.Field{
 				Type: graphql.String,
 			},
 		},
